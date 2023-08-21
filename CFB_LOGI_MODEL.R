@@ -1,29 +1,32 @@
+library(dplyr)
+library(readr)
+library(cfbfastR)
+#remotes::install_github(repo = "sportsdataverse/cfbfastR")
+#remotes::install_github(repo = "Kazink36/cfbplotR")
+library(cfbplotR)
+Sys.setenv(CFBD_API_KEY = "x1C/67YV6Sy98uENGd+tSvJSr82NfDxHFTmWk4QB5wGl2qxogM53QKLB5T4l6kPn")
+#Sys.setenv(CFBD_API_KEY = "OMFtwopAS5WexLsewwy5BKQsUIzguwFqGz6KkjiUc6zcpKNYphzld/71fWW7pt8j")
+library(stringr)
+library(tidyverse)
+library(nnet)
+library(mgcv)
+library(texreg)
+library(aod)
+library(xtable)
+library(xgboost)
+library(readr)
+library(stringr)
+library(caret)
+library(car)
+library(tidyverse)
+setwd("C:/Users/harri/OneDrive/Desktop/LTB/CFB Analysis")
+
+
 CFB_LOGI_MODEL <- function(ht=c(),at=c(),input_week,conferences = c(),previous_season=1,remove_fcs = FALSE){
   
   
   
-  library(dplyr)
-  library(readr)
-  library(cfbfastR)
-  #remotes::install_github(repo = "sportsdataverse/cfbfastR")
-  remotes::install_github(repo = "Kazink36/cfbplotR")
-  library(cfbplotR)
-  Sys.setenv(CFBD_API_KEY = "x1C/67YV6Sy98uENGd+tSvJSr82NfDxHFTmWk4QB5wGl2qxogM53QKLB5T4l6kPn")
-  #Sys.setenv(CFBD_API_KEY = "OMFtwopAS5WexLsewwy5BKQsUIzguwFqGz6KkjiUc6zcpKNYphzld/71fWW7pt8j")
-  library(stringr)
-  library(tidyverse)
-  library(nnet)
-  library(mgcv)
-  library(texreg)
-  library(aod)
-  library(xtable)
-  library(xgboost)
-  library(readr)
-  library(stringr)
-  library(caret)
-  library(car)
-  library(tidyverse)
-  setwd("C:/Users/harri/OneDrive/Desktop/LTB/CFB Analysis")
+
   
   week = input_week
   df = data.frame()
@@ -257,55 +260,131 @@ CFB_LOGI_MODEL <- function(ht=c(),at=c(),input_week,conferences = c(),previous_s
       # }
       #
       
-      
+      historical_elo = data.frame()
+      metrics_ppa = data.frame()
+      game_stats_home = data.frame()
+      game_stats_away = data.frame()
+      advanced_stats = data.frame()
+      #advanced_stats_away = data.frame()
+
+      for (s in (input_season-1):(input_season)){
+        temp1=cfbd_ratings_elo(year = s)
+        historical_elo = rbind(historical_elo,temp)
+
+        temp2 = cfbd_metrics_ppa_games(year = s)
+        metrics_ppa = rbind(metrics_ppa,temp2)
+
+        temp3 = cfbd_game_team_stats(year = s, team = at[j])
+        temp3['season'] = s
+        game_stats_away = rbind(game_stats_away,temp3,fill=TRUE)
+
+        temp5 = cfbd_game_team_stats(year = s,team = ht[j])
+        temp5['season'] = s
+        game_stats_home = rbind(game_stats_home,temp5,fill=TRUE)
+
+        temp4 = cfbd_stats_game_advanced(year = s)
+        temp4['season'] = s
+        advanced_stats = rbind(advanced_stats,temp4,fill=TRUE)
+
+    #    temp5 = cfbd_stats_game_advanced(year = s,team = at[j])
+    #    advanced_stats_away = rbind(advanced_stats_away,temp5)
+      }
+
+
+
+
+
       for (i in 1:nrow(home)){
-        home$opp_elo[i] = ifelse(is.null(cfbd_ratings_elo(year = home$year[i], team = home$opponent[i])$elo) == T, 1000, cfbd_ratings_elo(year = 2022, team = home$opponent[i])$elo)
-        home$opp_def_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_overall) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_overall)
-        home$opp_off_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_overall) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_overall)
-        home$opp_off_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_rushing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_rushing)
-        home$opp_off_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_passing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_passing)
-        home$opp_def_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_rushing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_rushing)
-        home$opp_def_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_passing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_passing)
-        home$opp_turnovers[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$turnovers) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$turnovers)
-        home$opp_total_yards[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$total_yards) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$total_yards)
-        home$opp_ypp[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_pass) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_pass)
-        home$opp_ypr[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_rush_attempt) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_rush_attempt)
+        # home$opp_elo[i] = ifelse(is.null(cfbd_ratings_elo(year = home$year[i], team = home$opponent[i])$elo) == T, 1000, cfbd_ratings_elo(year = 2022, team = home$opponent[i])$elo)
+        # home$opp_def_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_overall) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_overall)
+        # home$opp_off_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_overall) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_overall)
+        # home$opp_off_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_rushing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_rushing)
+        # home$opp_off_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_passing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$off_passing)
+        # home$opp_def_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_rushing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_rushing)
+        # home$opp_def_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_passing) == T, 0, cfbd_metrics_ppa_games(year = home$year[i], team = home$opponent[i])$def_passing)
+        # home$opp_turnovers[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$turnovers) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$turnovers)
+        # home$opp_total_yards[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$total_yards) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$total_yards)
+        # home$opp_ypp[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_pass) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_pass)
+        # home$opp_ypr[i] = ifelse(is.null(cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_rush_attempt) == T, 0, cfbd_game_team_stats(year = home$year[i], team = home$opponent[i])$yards_per_rush_attempt)
         
-        home$opp_off_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_success_rate) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_success_rate)
-        home$opp_off_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_power_success) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_power_success)
-        home$opp_off_explosiveness[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_explosiveness) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_explosiveness)
-        home$opp_def_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_success_rate) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_success_rate)
-        home$opp_def_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_power_success) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_power_success)
-        home$opp_def_explosiveness[i] = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_explosiveness) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_explosiveness)
+        # home$opp_off_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_success_rate) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_success_rate)
+        # home$opp_off_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_power_success) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_power_success)
+        # home$opp_off_explosiveness[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_explosiveness) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$off_explosiveness)
+        # home$opp_def_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_success_rate) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_success_rate)
+        # home$opp_def_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_power_success) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_power_success)
+        # home$opp_def_explosiveness[i] = ifelse(is.null(cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_explosiveness) == T, 0, cfbd_stats_game_advanced(year = home$year[i], team = home$opponent[i])$def_explosiveness)
         
         
-        
+        home$opp_elo[i] = ifelse(is.null(historical_elo[which(historical_elo$team == home$opponent[i] & historical_elo$year == home$year[i]),]$elo) == T, 1000, historical_elo[which(historical_elo$team == home$opponent[i] & historical_elo$year == home$year[i]),]$elo)
+        home$opp_def_overall[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$def_overall) == T, 0, metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$def_overall)
+        home$opp_off_overall[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$off_overall) == T, 0, metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$off_overall)
+        home$opp_off_rushing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$off_rushing) == T, 0, metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$off_rushing)
+        home$opp_off_passing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$off_passing) == T, 0, metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$off_passing)
+        home$opp_def_rushing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$def_rushing) == T, 0, metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$def_rushing)
+        home$opp_def_passing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$def_passing) == T, 0, metrics_ppa[which(metrics_ppa$season == home$year[i] & metrics_ppa$team == home$opponent[i] & metrics_ppa$opponent == ht[j]),]$def_passing)
+
+
+        home$opp_turnovers[i] = ifelse(is.null(game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$turnovers) == T, 0, game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$turnovers)
+        home$opp_total_yards[i] = ifelse(is.null(game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$total_yards_allowed) == T, 0, game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$total_yards_allowed)
+        home$opp_ypp[i] = ifelse(is.null(game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$yards_per_pass_allowed) == T, 0, game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$yards_per_pass_allowed)
+        home$opp_ypr[i] = ifelse(is.null(game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$yards_per_rush_attempt_allowed) == T, 0,game_stats_home[which(game_stats_home$opponent == home$opponent[i] ),]$yards_per_rush_attempt_allowed)
+
+
+        home$opp_off_success_rate[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$off_success_rate) == T, 0, advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$off_success_rate)
+        home$opp_off_power_success[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$off_power_success) == T, 0, advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$off_power_success)
+        home$opp_off_explosiveness[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$off_explosiveness) == T, 0, advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$off_explosiveness)
+        home$opp_def_success_rate[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$def_success_rate) == T, 0, advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$def_success_rate)
+        home$opp_def_power_success[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$def_power_success) == T, 0, advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$def_power_success)
+        home$opp_def_explosiveness[i] = ifelse(is.null(advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$def_explosiveness) == T, 0, advanced_stats[which(advanced_stats$team == home$opponent[i] & advanced_stats$season == home$year[i] & advanced_stats$opponent == ht[j]),]$def_explosiveness)
+
+  
         
         print(i/nrow(home))
       }
       for (i in 1:nrow(away)){
-        away$opp_elo[i] = ifelse(is.null(cfbd_ratings_elo(year = away$year[i], team = away$opponent[i])$elo) == T, 1000, cfbd_ratings_elo(year = away$year[i], team = away$opponent[i])$elo)
-        away$opp_def_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_overall) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_overall)
-        away$opp_off_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_overall) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_overall)
-        away$opp_off_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_rushing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_rushing)
-        away$opp_off_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_passing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_passing)
-        away$opp_def_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_rushing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_rushing)
-        away$opp_def_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_passing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_passing)
-        # away$opp_sacks_allowed[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$sacks_allowed) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$sacks_allowed)
-        # away$opp_qb_hurries_allowed[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$qb_hurries_allowed) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$qb_hurries_allowed)
-        away$opp_turnovers[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$turnovers) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$turnovers)
-        away$opp_total_yards[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$total_yards) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$total_yards)
-        away$opp_ypp[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_pass) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_pass)
-        away$opp_ypr[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_rush_attempt) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_rush_attempt)
+        # away$opp_elo[i] = ifelse(is.null(cfbd_ratings_elo(year = away$year[i], team = away$opponent[i])$elo) == T, 1000, cfbd_ratings_elo(year = away$year[i], team = away$opponent[i])$elo)
+        # away$opp_def_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_overall) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_overall)
+        # away$opp_off_overall[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_overall) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_overall)
+        # away$opp_off_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_rushing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_rushing)
+        # away$opp_off_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_passing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$off_passing)
+        # away$opp_def_rushing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_rushing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_rushing)
+        # away$opp_def_passing[i] = ifelse(is.null(cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_passing) == T, 0, cfbd_metrics_ppa_games(year = away$year[i], team = away$opponent[i])$def_passing)
+        # # away$opp_sacks_allowed[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$sacks_allowed) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$sacks_allowed)
+        # # away$opp_qb_hurries_allowed[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$qb_hurries_allowed) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$qb_hurries_allowed)
+        # away$opp_turnovers[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$turnovers) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$turnovers)
+        # away$opp_total_yards[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$total_yards) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$total_yards)
+        # away$opp_ypp[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_pass) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_pass)
+        # away$opp_ypr[i] = ifelse(is.null(cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_rush_attempt) == T, 0, cfbd_game_team_stats(year = away$year[i], team = away$opponent[i])$yards_per_rush_attempt)
         
-        away$opp_off_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_success_rate) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_success_rate)
-        away$opp_off_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_power_success) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_power_success)
-        away$opp_off_explosiveness[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_explosiveness) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_explosiveness)
-        away$opp_def_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_success_rate) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_success_rate)
-        away$opp_def_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_power_success) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_power_success)
-        away$opp_def_explosiveness[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_explosiveness) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_explosiveness)
+        # away$opp_off_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_success_rate) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_success_rate)
+        # away$opp_off_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_power_success) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_power_success)
+        # away$opp_off_explosiveness[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_explosiveness) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$off_explosiveness)
+        # away$opp_def_success_rate[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_success_rate) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_success_rate)
+        # away$opp_def_power_success[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_power_success) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_power_success)
+        # away$opp_def_explosiveness[i]  = ifelse(is.null(cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_explosiveness) == T, 0, cfbd_stats_game_advanced(year = away$year[i], team = away$opponent[i])$def_explosiveness)
         
-        
+        away$opp_elo[i] = ifelse(is.null(historical_elo[which(historical_elo$team == away$opponent[i] & historical_elo$year == away$year[i]),]$elo) == T, 1000, historical_elo[which(historical_elo$team == away$opponent[i] & historical_elo$year == away$year[i]),]$elo)
+        away$opp_def_overall[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$def_overall) == T, 0, metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$def_overall)
+        away$opp_off_overall[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$off_overall) == T, 0, metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$off_overall)
+        away$opp_off_rushing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$off_rushing) == T, 0, metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$off_rushing)
+        away$opp_off_passing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$off_passing) == T, 0, metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$off_passing)
+        away$opp_def_rushing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$def_rushing) == T, 0, metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$def_rushing)
+        away$opp_def_passing[i] = ifelse(is.null(metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$def_passing) == T, 0, metrics_ppa[which(metrics_ppa$season == away$year[i] & metrics_ppa$team == away$opponent[i] & metrics_ppa$opponent == at[j]),]$def_passing)
+
+
+        away$opp_turnovers[i] = ifelse(is.null(game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$turnovers) == T, 0, game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$turnovers)
+        away$opp_total_yards[i] = ifelse(is.null(game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$total_yards_allowed) == T, 0, game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$total_yards_allowed)
+        away$opp_ypp[i] = ifelse(is.null(game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$yards_per_pass_allowed) == T, 0, game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$yards_per_pass_allowed)
+        away$opp_ypr[i] = ifelse(is.null(game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$yards_per_rush_attempt_allowed) == T, 0,game_stats_away[which(game_stats_away$opponent == away$opponent[i] ),]$yards_per_rush_attempt_allowed)
+
+
+        away$opp_off_success_rate[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$off_success_rate) == T, 0, advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$off_success_rate)
+        away$opp_off_power_success[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$off_power_success) == T, 0, advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$off_power_success)
+        away$opp_off_explosiveness[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$off_explosiveness) == T, 0, advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$off_explosiveness)
+        away$opp_def_success_rate[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$def_success_rate) == T, 0, advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$def_success_rate)
+        away$opp_def_power_success[i]  = ifelse(is.null(advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$def_power_success) == T, 0, advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$def_power_success)
+        away$opp_def_explosiveness[i] = ifelse(is.null(advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$def_explosiveness) == T, 0, advanced_stats[which(advanced_stats$team == away$opponent[i] & advanced_stats$season == away$year[i] & advanced_stats$opponent == at[j]),]$def_explosiveness)
+
         
         print(i/nrow(away))
       }
@@ -373,6 +452,7 @@ CFB_LOGI_MODEL <- function(ht=c(),at=c(),input_week,conferences = c(),previous_s
       
       
       ######### home #############
+
       X = home[c('elo','opp_elo',
                  'off_overall',
                  'def_overall',

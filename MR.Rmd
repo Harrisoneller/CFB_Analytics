@@ -12,8 +12,8 @@ library(dplyr)
 library(readr)
 library(cfbfastR)
 #remotes::install_github(repo = "sportsdataverse/cfbfastR")
-remotes::install_github(repo = "Kazink36/cfbplotR")
-library(cfbplotR)
+remotes::install_github(repo = "Kazink36/cfbplotR",force = TRUE)
+#library(cfbplotR)
 Sys.setenv(CFBD_API_KEY = "x1C/67YV6Sy98uENGd+tSvJSr82NfDxHFTmWk4QB5wGl2qxogM53QKLB5T4l6kPn")
 #Sys.setenv(CFBD_API_KEY = "OMFtwopAS5WexLsewwy5BKQsUIzguwFqGz6KkjiUc6zcpKNYphzld/71fWW7pt8j")
 library(stringr)
@@ -33,7 +33,7 @@ library(gt)
 ```
 
 ```{r, include=F}
-week = 14
+week = 1
 df = data.frame()
 #conference = c('SEC')
 
@@ -48,8 +48,8 @@ fbs_teams = subset(fbs_teams, classification == 'fbs')
 # ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # home_team_filter = ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # at = cfbd_game_info(2022, week = week, conference = conference)$away_team[1]
-ht=c('Georgia')
-at=c('TCU')
+ht=c('Tennessee')
+at=c('Virginia')
 ```
 
 ```{r, include=F}
@@ -73,19 +73,24 @@ TEAMS$third_down_conv_rate<- TEAMS$third_down_convs / TEAMS$third_downs
 ```{r, echo=F}
 # Betting information 
 # Betting information 
-# bet <- cfbd_betting_lines(year = 2022, week = week, team = ht)
-# 
+lines <- cfbd_betting_lines(year = 2023, week = 1, team = ht)
+line <- subset(lines,provider == "DraftKings")
+if (nrow(line) < 1){line <- subset(lines,provider == "Bovada")}
 # bet$home_score <- ifelse(as.numeric(bet$spread) < 0, as.numeric(bet$over_under) + as.numeric(bet$spread),  as.numeric(bet$over_under) - as.numeric(bet$spread))
 # 
 # bet$away_score <- as.numeric(bet$over_under) - as.numeric(bet$home_score)
 
+
+
 bet <- data.frame(home_score=0,away_score=0,total=0,home_team=0,away_team=0,spread=0, home_conference=0)
-bet$home_score <- 37.5
-bet$away_score <- 24.5
-bet$total <- 62.5
+bet$total <- as.numeric(line$over_under[1])
+bet$spread <- as.numeric(line$spread[1])
+bet$home_score <- ifelse(bet$spread  < 0, (bet$total/2)-(bet$spread/2), (bet$total/2)+(bet$spread/2))
+bet$away_score <- bet$total - bet$home_score 
+
 bet$home_team <- ht
 bet$away_team <- at
-bet$spread <- "-13"
+
 
 
 
