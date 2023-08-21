@@ -29,7 +29,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
   week = input_week
   df = data.frame()
-  conferences = c()
+  #conferences = c()
   # 'Ind','MAC','MWC','SBC'
   
   fbs = cfbd_conferences()
@@ -44,8 +44,8 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
     week = week
     
     if(length(conferences) >= 1){
-    ht = cfbd_game_info(2022, week = week, conference = conference)$home_team
-    at = cfbd_game_info(2022, week = week, conference = conference)$away_team
+    ht = cfbd_game_info(2023, week = week, conference = conference)$home_team
+    at = cfbd_game_info(2023, week = week, conference = conference)$away_team
     #ht = cfbd_game_info(2022)$home_team
     #at = cfbd_game_info(2022, week = week)$away_team
     #ht = ht[1:17]
@@ -256,10 +256,10 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
       for (s in (input_season-1):(input_season)){
         temp1=cfbd_ratings_elo(year = s)
-        historical_elo = rbind(historical_elo,temp)
+        historical_elo = rbind(historical_elo,temp1, fill = TRUE)
 
         temp2 = cfbd_metrics_ppa_games(year = s)
-        metrics_ppa = rbind(metrics_ppa,temp2)
+        metrics_ppa = rbind(metrics_ppa,temp2, fill = TRUE)
 
         temp3 = cfbd_game_team_stats(year = s, team = at[j])
         temp3['season'] = s
@@ -646,7 +646,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       y$at[j] = at[j]
       y$ht_score[j] = home_points
       y$at_score[j] = away_points
-      y$ht_spread[j] = ifelse(is.null(cfbd_betting_lines(year = 2022, week = week, team = ht[j])$spread), 0, cfbd_betting_lines(year = 2022, week = week, team = ht[j])$spread)
+      y$ht_spread[j] = ifelse(is.null(cfbd_betting_lines(year = 2023, week = week, team = ht[j])$spread), 0, cfbd_betting_lines(year = 2023, week = week, team = ht[j])$spread)
       #y$ht_spread[j] = -11
       print(ht[j]);print(home_points);print(at[j]);print(away_points)
       setTxtProgressBar(pb2, j)
@@ -709,7 +709,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
   
   
   
-  return(df,y)
+  return(df)
   
   
   
@@ -722,5 +722,5 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
 
 
-CFB_MODEL(ht=c('Alabama'),at=c('LSU'),input_week=10,input_season=2022,conferences = c(),previous_season=0,remove_fcs = FALSE)
+
 

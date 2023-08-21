@@ -30,6 +30,7 @@ library(caret)
 library(car)
 library(tidyverse)
 library(gt)
+CFB_MODEL <- dget("CFB_MODEL_FUNCTION.R")
 ```
 
 ```{r, include=F}
@@ -135,6 +136,9 @@ bet %>%
 
 ```{r, echo=F}
 team_plot_data = readxl::read_xlsx("C:/Users/harri/OneDrive/Desktop/LTB/CFB Analysis/natty.xlsx")
+
+team_plot_data <- CFB_MODEL(ht=ht,at=at,input_week=1,input_season=2022,conferences = c(),previous_season=1,remove_fcs = TRUE)
+
 home_team = ht
 #y=team_plot_data
 team_plot_data$conference = 0
@@ -374,7 +378,7 @@ off_ratings %>%
    select(team, conference.x, pass_TDs, rush_TDs,  passes_intercepted,fumbles_lost,Total_YPG, Passing_YPG,Rushing_YPG, Passing_YPA, Passing_YPC, Rushing_YPA, off_success_rate, off_explosiveness,off_power_success,off_passing_plays_success_rate, off_passing_plays_explosiveness, off_rushing_plays_success_rate, off_rushing_plays_explosiveness) %>%
   transmute(Team= team, off_success_rate, off_explosiveness,off_power_success,off_passing_plays_success_rate, off_passing_plays_explosiveness, off_rushing_plays_success_rate, off_rushing_plays_explosiveness) %>% 
 gt(rowname_col = c("Team")) %>% 
-  gt_fmt_cfb_logo(columns = c(Team)) %>% 
+  gt_fmt_cfb_logo(columns = c('Team')) %>% 
     cols_label(
     Team = md("**Team**"),
    off_success_rate = md("**Success Rate**"),
@@ -478,7 +482,7 @@ def_ratings %>%
    select(team, conference.x, def_success_rate, def_explosiveness,def_power_success,def_passing_plays_success_rate, def_passing_plays_explosiveness, def_rushing_plays_success_rate, def_rushing_plays_explosiveness) %>%
   transmute(Team= team, def_success_rate, def_explosiveness,def_power_success,def_passing_plays_success_rate, def_passing_plays_explosiveness, def_rushing_plays_success_rate, def_rushing_plays_explosiveness) %>% 
 gt(rowname_col = c("Team")) %>% 
-  gt_fmt_cfb_logo(columns = c(Team)) %>% 
+  gt_fmt_cfb_logo(columns = c('Team')) %>% 
     cols_label(
     Team = md("**Team**"),
    def_success_rate = md("**Success Rate**"),
