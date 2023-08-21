@@ -135,7 +135,6 @@ bet %>%
 
 
 ```{r, echo=F}
-team_plot_data = readxl::read_xlsx("C:/Users/harri/OneDrive/Desktop/LTB/CFB Analysis/natty.xlsx")
 
 team_plot_data <- CFB_MODEL(ht=ht,at=at,input_week=1,input_season=2022,conferences = c(),previous_season=1,remove_fcs = TRUE)
 
@@ -149,21 +148,21 @@ team_plot_data<-team_plot_data %>%
 # team_plot_data$value_side = 'Army'
 
 
-# for(i in 1:nrow(team_plot_data)){
-#   team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
-# }
+for(i in 1:nrow(team_plot_data)){
+  team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
+}
 
-team_plot_data$conference = 'NCAA'
+#team_plot_data$conference = 'NCAA'
 
 
 team_plot_data %>% 
   transmute(Conference = conference, Home_Team = ht,
             Home_Score = round(ht_score,2), 
             Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>% 
-  arrange(desc(Conference)) %>% 
+  arrange(desc('Conference')) %>% 
   gt() %>%
-  gt_fmt_cfb_logo(columns = c(Conference, Spread_Pick)) %>% 
-  gt_fmt_cfb_wordmark(columns = c(Home_Team,Away_Team)) %>% 
+  gt_fmt_cfb_logo(columns = c('Conference', 'Spread_Pick')) %>% 
+  gt_fmt_cfb_wordmark(columns = c('Home_Team','Away_Team')) %>% 
   cols_align(
     align = c('center'),
     columns = everything()
