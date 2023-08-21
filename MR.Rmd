@@ -12,8 +12,8 @@ library(dplyr)
 library(readr)
 library(cfbfastR)
 #remotes::install_github(repo = "sportsdataverse/cfbfastR")
-remotes::install_github(repo = "Kazink36/cfbplotR",force = TRUE)
-#library(cfbplotR)
+remotes::install_github(repo = "sportsdataverse/cfbplotR")
+library(cfbplotR)
 Sys.setenv(CFBD_API_KEY = "x1C/67YV6Sy98uENGd+tSvJSr82NfDxHFTmWk4QB5wGl2qxogM53QKLB5T4l6kPn")
 #Sys.setenv(CFBD_API_KEY = "OMFtwopAS5WexLsewwy5BKQsUIzguwFqGz6KkjiUc6zcpKNYphzld/71fWW7pt8j")
 library(stringr)
@@ -25,7 +25,7 @@ library(aod)
 library(xtable)
 library(xgboost)
 library(readr)
-library(stringr)
+#library(stringr)
 library(caret)
 library(car)
 library(tidyverse)
@@ -101,7 +101,7 @@ bet %>%
             Away_Team = away_team, Home_Spread = spread) %>% 
   gt() %>%
   #gt_fmt_cfb_logo(columns = c(Conference)) %>% 
-  gt_fmt_cfb_wordmark(columns = c(Home_Team,Away_Team)) %>% 
+  gt_fmt_cfb_wordmark(columns = c('Home_Team','Away_Team')) %>% 
   cols_align(
     align = c('center'),
     columns = everything()
@@ -145,9 +145,9 @@ team_plot_data<-team_plot_data %>%
 # team_plot_data$value_side = 'Army'
 
 
-for(i in 1:nrow(team_plot_data)){
-  team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
-}
+# for(i in 1:nrow(team_plot_data)){
+#   team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
+# }
 
 team_plot_data$conference = 'NCAA'
 
@@ -207,7 +207,7 @@ t %>%
    select(team, conference.x, pass_TDs, rush_TDs,  interceptions,fumbles_lost,Total_YPG, Passing_YPG,Rushing_YPG, Passing_YPA, Passing_YPC, Rushing_YPA, third_down_conv_rate,off_success_rate, off_explosiveness,off_power_success,off_passing_plays_success_rate, off_passing_plays_explosiveness, off_rushing_plays_success_rate, off_rushing_plays_explosiveness) %>%
   transmute(Team = team, Passing_TDs = round(pass_TDs,0), Rushing_TDs = round(rush_TDs,0),  INTs = round(interceptions,0),FUM = round(fumbles_lost,0),Total_YPG, Passing_YPG,Rushing_YPG, Passing_YPA, Passing_YPC, Rushing_YPA, third_down_conv_rate) %>% 
 gt(rowname_col = c("Team")) %>% 
-  gt_fmt_cfb_logo(columns = c(Team)) %>% 
+  gt_fmt_cfb_logo(columns = c('Team')) %>% 
     cols_label(
     Team = md("**Team**"),
    Passing_TDs = md("**Pass TDs**"),

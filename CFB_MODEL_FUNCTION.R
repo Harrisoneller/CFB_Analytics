@@ -4,7 +4,7 @@ library(dplyr)
 library(readr)
 library(cfbfastR)
 #remotes::install_github(repo = "sportsdataverse/cfbfastR")
-#remotes::install_github(repo = "Kazink36/cfbplotR")
+remotes::install_github(repo = "sportsdataverse/cfbplotR")
 library(cfbplotR)
 Sys.setenv(CFBD_API_KEY = "x1C/67YV6Sy98uENGd+tSvJSr82NfDxHFTmWk4QB5wGl2qxogM53QKLB5T4l6kPn")
 #Sys.setenv(CFBD_API_KEY = "OMFtwopAS5WexLsewwy5BKQsUIzguwFqGz6KkjiUc6zcpKNYphzld/71fWW7pt8j")
@@ -708,6 +708,8 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
     theme_light()
   
   
+  
+  return(df,y)
   
   
   
