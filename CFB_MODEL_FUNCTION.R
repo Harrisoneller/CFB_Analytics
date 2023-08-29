@@ -69,7 +69,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
     
     #at = c('Eastern Michigan', 'Ohio', 'Ball State', 'Northern Illinois', 'Buffalo', 'Kent State', 'Tulsa', 'Georgia Southern', 'East Carolina', 'Colorado', 'Fresno State')
     #ht = c('Akron', 'Miami (OH)', 'Toledo', 'Western Michigan', 'Central Michigan', 'Bowling Green', 'Memphis', 'Louisiana', 'Cincinnati', 'USC', 'UNLV')
-    pb2 = txtProgressBar(min = 0, max = length(ht), initial = 0)
+    #pb2 = txtProgressBar(min = 0, max = length(ht), initial = 0)
     
     y = data.frame(matrix(ncol = 5, nrow = length(ht)))
     colnames(y) <- c('ht', 'at', 'ht_score', 'at_score', 'ht_spread')
@@ -649,7 +649,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       y$ht_spread[j] = ifelse(is.null(cfbd_betting_lines(year = 2023, week = week, team = ht[j])$spread), 0, cfbd_betting_lines(year = 2023, week = week, team = ht[j])$spread)
       #y$ht_spread[j] = -11
       print(ht[j]);print(home_points);print(at[j]);print(away_points)
-      setTxtProgressBar(pb2, j)
+      #setTxtProgressBar(pb2, j)
     }
     
     
@@ -685,7 +685,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
     
     y$value_rating = abs((y$diff)/100)
     y$value_rating = abs((y$value_diff)/100)
-    df = rbind(df,y)
+    #df = rbind(df,y, fill = TRUE)
   }
   y
 
@@ -694,22 +694,22 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
   # df
   # 
   
-  ggplot(y, aes(x = seq(1,nrow(y),1),y = value_rating)) +
-    geom_cfb_logos(aes(team = value_side),y = y$value_rating +.025, width = 0.075) +
-    geom_cfb_logos(aes(team = x_axis),y =-.02, width = 0.075)+
-    #geom_median_lines(aes( h_var = 0), size = 2) +
-    geom_col(aes(fill = value_side, color = value_side),size = 1.5) +
-    annotate(cfbplotR::GeomCFBlogo,x = 1.55,y = .42 + .03,team = 'B12',height = .2,alpha = .3) +
-    labs(x = 'Opponent', y = 'Value (Model Favorite)', title = 'CFB Value Finder', subtitle = 'Picks Against The Spread')+
-    scale_fill_cfb(alpha = .8) +
-    scale_color_cfb(alt_colors = ht) +
-    ylim(-.02, .5)+
-    scale_x_cfb(size = 16) +
-    theme_light()
+  # ggplot(y, aes(x = seq(1,nrow(y),1),y = value_rating)) +
+  #   geom_cfb_logos(aes(team = value_side),y = y$value_rating +.025, width = 0.075) +
+  #   geom_cfb_logos(aes(team = x_axis),y =-.02, width = 0.075)+
+  #   #geom_median_lines(aes( h_var = 0), size = 2) +
+  #   geom_col(aes(fill = value_side, color = value_side),size = 1.5) +
+  #   annotate(cfbplotR::GeomCFBlogo,x = 1.55,y = .42 + .03,team = 'B12',height = .2,alpha = .3) +
+  #   labs(x = 'Opponent', y = 'Value (Model Favorite)', title = 'CFB Value Finder', subtitle = 'Picks Against The Spread')+
+  #   scale_fill_cfb(alpha = .8) +
+  #   scale_color_cfb(alt_colors = ht) +
+  #   ylim(-.02, .5)+
+  #   scale_x_cfb(size = 16) +
+  #   theme_light()
   
   
   
-  return(df)
+  return(y)
   
   
   
@@ -723,4 +723,52 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
 
 
+#team = cfbd_team_info(year = 2023)
+#team$mascot[which(team$school == "Jacksonville State")]
+ht = c('Notre Dame','San Diego State','Vanderbilt',"Louisiana Tech")#,"Jacksonville State")
+at = c('Navy','Ohio',"Hawai'i","Florida International")#,'UTEP')
 
+
+df <- CFB_MODEL(ht=ht,at=at,input_week=1,input_season=2022,conferences = c(),previous_season=1,remove_fcs = FALSE)
+
+y<-df
+
+team_plot_data = y
+team_plot_data$conference = 0
+
+for(i in 1:nrow(team_plot_data)){
+  team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
+
+}
+
+
+
+write.csv(df,"tpd.csv")
+library(gt)
+team_plot_data %>%
+  transmute(Conference = conference, Home_Team = ht,
+            Home_Score = round(ht_score,2),
+            Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
+  arrange(desc(Conference)) %>%
+  gt() %>%
+  gt_fmt_cfb_logo(columns = c(Conference, Spread_Pick)) %>%
+  gt_fmt_cfb_wordmark(columns = c(Home_Team,Away_Team)) %>%
+  cols_align(
+    align = c('center'),
+    columns = everything()
+  ) %>%
+  tab_header(
+    title = md("**Scarlett Score Predictions**"),
+    subtitle = md("Harrison Eller")
+  ) %>%
+  fmt_number(
+    columns = c(Home_Score, Away_Score)
+  ) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      columns = c(Home_Score, Away_Score)
+    )
+  )
