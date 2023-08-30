@@ -37,12 +37,13 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
   fbs = fbs[1:10,]
   fbs_teams = load_cfb_teams()
   fbs_teams = subset(fbs_teams, classification == 'fbs')
-  
+
   for(conf in 1:length(conferences)){
     
     conference= conferences[conf]
     week = week
-    
+
+    #cfbd_game_info(2023, week = 1)
     if(length(conferences) >= 1){
     ht = cfbd_game_info(2023, week = week, conference = conference)$home_team
     at = cfbd_game_info(2023, week = week, conference = conference)$away_team
@@ -80,6 +81,8 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       home1 <- 0
       away1 <- 0
       
+      print(ht[j])
+      print(at[j])
       #enable current season
       if(previous_season == 1){
         home_stats1 = cfbd_game_team_stats(input_season-1, team = ht[j])
@@ -94,16 +97,29 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       
       
         home_elo1 = cfbd_ratings_elo(year = input_season-1,team = ht[j])
+        if (nrow(home_elo1) != 0){print("good elo data for home1")}else{
+          home_elo1<-cfbd_ratings_elo(year = input_season-1)[1,]
+          home_elo1$team <- ht[j]
+          home_elo1$conference <- conference
+          home_elo1$elo <- 1300
+        }
         away_elo1 = cfbd_ratings_elo(year = input_season-1,team = at[j])
-      
+        if (nrow(away_elo1) != 0){print("good elo data for away1")}else{
+          away_elo1<-cfbd_ratings_elo(year = input_season-1)[1,]
+          away_elo1$team <- at[j]
+          away_elo1$conference <- conference
+          away_elo1$elo <- 1300
+        }
       
         if(length(home_stats1)>0){home1 = inner_join(home_stats1,home_ppa1,by = 'game_id')}
         if(length(away_stats1)>0){away1 = inner_join(away_stats1,away_ppa1,by = 'game_id')}
       
+
+
         if(length(home_elo1) >0){home1 = inner_join(home1,home_elo1, by = 'team')}
         if(length(away_elo1) >0){away1= inner_join(away1,away_elo1, by = 'team')}
-      
-      
+
+
         if(length(home_advanced1)>0){home1 = inner_join(home1,home_advanced1,by = 'game_id')}
         if(length(away_advanced1)>0){away1 = inner_join(away1,away_advanced1,by = 'game_id')}
       
@@ -147,18 +163,32 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       away_ppa2 = cfbd_metrics_ppa_games(input_season, team = at[j])
       
       
-      home_elo2 = cfbd_ratings_elo(year = input_season,team = ht[j])
-      away_elo2 = cfbd_ratings_elo(year = input_season,team = at[j])
+        home_elo2 = cfbd_ratings_elo(year = input_season,team = ht[j])
+        if (nrow(home_elo2) != 0){print("good elo data for home team")}else{
+          home_elo2<-cfbd_ratings_elo(year = input_season)[1,]
+          home_elo2$team <- ht[j]
+          home_elo2$conference <- conference
+          home_elo2$elo <- 1300
+        }
+        away_elo2 = cfbd_ratings_elo(year = input_season,team = at[j])
+        if (nrow(away_elo2) != 0){away_elo2 = cfbd_ratings_elo(year = input_season,team = at[j])}else{
+          away_elo2<-cfbd_ratings_elo(year = input_season)[1,]
+          away_elo2$team <- at[j]
+          away_elo2$conference <- conference
+          away_elo2$elo <- 1300
+        }
       
       
       
       home2 = inner_join(home_stats2,home_ppa2,by = 'game_id')
       away2 = inner_join(away_stats2,away_ppa2,by = 'game_id')
       
+      print(home_elo1)
+      print(away_elo1)     
       
       home2 = inner_join(home2,home_elo2, by = 'team')
       away2= inner_join(away2,away_elo2, by = 'team')
-      
+
       home2 = inner_join(home2,home_advanced2,by = 'game_id')
       away2 = inner_join(away2,away_advanced2,by = 'game_id')
       
@@ -725,13 +755,21 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
 #team = cfbd_team_info(year = 2023)
 #team$mascot[which(team$school == "Jacksonville State")]
-ht = c('Notre Dame','San Diego State','Vanderbilt',"Louisiana Tech")#,"Jacksonville State")
-at = c('Navy','Ohio',"Hawai'i","Florida International")#,'UTEP')
+# ht = c('Notre Dame','San Diego State','Vanderbilt',"Louisiana Tech")#,"Jacksonville State")
+# at = c('Navy','Ohio',"Hawai'i","Florida International")#,'UTEP')
+
+#p5 <- data.frame()
+conferences<-c("B12","B1G","SEC","PAC")
+
+for (c in conferences){
+df <- CFB_MODEL(ht=c(),at=c(),input_week=1,input_season=2022,conferences = c(c),previous_season=1,remove_fcs = TRUE)
+p5 = rbind(p5,df,fill = TRUE)
+}
 
 
-df <- CFB_MODEL(ht=ht,at=at,input_week=1,input_season=2022,conferences = c(),previous_season=1,remove_fcs = FALSE)
 
-y<-df
+p5<-p5[-which(p5$ht == TRUE),]
+y<-p5
 
 team_plot_data = y
 team_plot_data$conference = 0
@@ -743,16 +781,34 @@ for(i in 1:nrow(team_plot_data)){
 
 
 
-write.csv(df,"tpd.csv")
 library(gt)
+
+team_info <- cfbd_team_info()
+team_info <- team_info %>%
+      filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
+
+
+############################ gt table ####################################
+
+
+conf = "Pac-12"
+temp <- subset(team_info,conference == conf)
+
+team_plot_data <- p5 %>%
+        filter(ht %in% temp$school | at %in% temp$school)
+
+team_plot_data$conference <- conf
+
+team_plot_data <- team_plot_data[-c(1,4,6,9),]
+
 team_plot_data %>%
   transmute(Conference = conference, Home_Team = ht,
             Home_Score = round(ht_score,2),
             Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
   arrange(desc(Conference)) %>%
   gt() %>%
-  gt_fmt_cfb_logo(columns = c(Conference, Spread_Pick)) %>%
-  gt_fmt_cfb_wordmark(columns = c(Home_Team,Away_Team)) %>%
+  gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
+  gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
   cols_align(
     align = c('center'),
     columns = everything()
@@ -762,13 +818,18 @@ team_plot_data %>%
     subtitle = md("Harrison Eller")
   ) %>%
   fmt_number(
-    columns = c(Home_Score, Away_Score)
+    columns = c("Home_Score", "Away_Score")
   ) %>%
   tab_style(
     style = list(
       cell_text(weight = "bold")
     ),
     locations = cells_body(
-      columns = c(Home_Score, Away_Score)
+      columns = c("Home_Score", "Away_Score")
     )
   )
+
+
+
+
+
