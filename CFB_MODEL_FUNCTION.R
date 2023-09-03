@@ -1,5 +1,3 @@
-
-
 library(dplyr)
 library(readr)
 library(cfbfastR)
@@ -36,21 +34,39 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
   fbs = subset(fbs, classification == 'fbs')
   fbs = fbs[1:10,]
   fbs_teams = load_cfb_teams()
+
   fbs_teams = subset(fbs_teams, classification == 'fbs')
+  fbs_teams$conference_abbr <-''
+  
+  for (i in 1:nrow(fbs_teams)){
+    fbs_teams$conference_abbr[i] <- fbs$abbreviation[which(fbs$name == fbs_teams$conference[i])][1]
+  }
 
-  for(conf in 1:length(conferences)){
+  for(conf in 1:1) {#length(conferences)){
     
-    conference= conferences[conf]
-    week = week
+    #conference= conferences[conf]
+    #week = week
 
-    #cfbd_game_info(2023, week = 1)
     if(length(conferences) >= 1){
-    ht = cfbd_game_info(2023, week = week, conference = conference)$home_team
-    at = cfbd_game_info(2023, week = week, conference = conference)$away_team
-    #ht = cfbd_game_info(2022)$home_team
-    #at = cfbd_game_info(2022, week = week)$away_team
-    #ht = ht[1:17]
-    #at = at[1:17]
+    #ht = cfbd_game_info(2023, week = week, conference = conference)$home_team
+    #at = cfbd_game_info(2023, week = week, conference = conference)$away_team
+
+
+
+
+    games <- tibble()
+    for (c in conferences){
+      group<- cfbd_game_info(2023, week = week, conference = c)
+      games <- rbind(games,group,fill=TRUE)
+    }
+
+    games <- games[!duplicated(games$game_id),]
+    ht <- games$home_team
+    at <- games$away_team
+
+    ht <- ht[-which(ht == TRUE)]
+    at <- at[-which(at == TRUE)]
+
     }else{
     
     ht = ht
@@ -73,44 +89,49 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
     #pb2 = txtProgressBar(min = 0, max = length(ht), initial = 0)
     
     y = data.frame(matrix(ncol = 5, nrow = length(ht)))
-    colnames(y) <- c('ht', 'at', 'ht_score', 'at_score', 'ht_spread')
+    colnames(y) <- c('ht', 'at', 'ht_score', 'at_score', 'ht_spread') # nolint
+
+
     
     #######################  model #############################
     for (j in 1:length(ht)){
-      
+
+
       home1 <- 0
       away1 <- 0
       
       print(ht[j])
       print(at[j])
+
       #enable current season
       if(previous_season == 1){
-        home_stats1 = cfbd_game_team_stats(input_season-1, team = ht[j])
-        away_stats1 = cfbd_game_team_stats(input_season-1, team = at[j])
+        home_stats1 = cfbd_game_team_stats(input_season-2, team = ht[j])
+        away_stats1 = cfbd_game_team_stats(input_season-2, team = at[j])
       
-        home_advanced1 = cfbd_stats_game_advanced(input_season-1, team = ht[j])
-        away_advanced1 = cfbd_stats_game_advanced(input_season-1, team = at[j])
+        home_advanced1 = cfbd_stats_game_advanced(input_season-2, team = ht[j])
+        away_advanced1 = cfbd_stats_game_advanced(input_season-2, team = at[j])
       
-        home_ppa1 = cfbd_metrics_ppa_games(input_season-1, team = ht[j])
-        away_ppa1 = cfbd_metrics_ppa_games(input_season-1, team = at[j])
+        home_ppa1 = cfbd_metrics_ppa_games(input_season-2, team = ht[j])
+        away_ppa1 = cfbd_metrics_ppa_games(input_season-2, team = at[j])
       
-      
-      
-        home_elo1 = cfbd_ratings_elo(year = input_season-1,team = ht[j])
+
+        home_elo1 = cfbd_ratings_elo(year = input_season-2,team = ht[j])
         if (nrow(home_elo1) != 0){print("good elo data for home1")}else{
-          home_elo1<-cfbd_ratings_elo(year = input_season-1)[1,]
+          home_elo1<-cfbd_ratings_elo(year = input_season-2)[1,]
           home_elo1$team <- ht[j]
-          home_elo1$conference <- conference
+          home_elo1$conference <- games$home_conference[which(games$home_team == ht[j])]
           home_elo1$elo <- 1300
         }
-        away_elo1 = cfbd_ratings_elo(year = input_season-1,team = at[j])
+        away_elo1 = cfbd_ratings_elo(year = input_season-2,team = at[j])
         if (nrow(away_elo1) != 0){print("good elo data for away1")}else{
-          away_elo1<-cfbd_ratings_elo(year = input_season-1)[1,]
+          away_elo1<-cfbd_ratings_elo(year = input_season-2)[1,]
           away_elo1$team <- at[j]
-          away_elo1$conference <- conference
+          away_elo1$conference <- games$away_conference[which(games$away_team == at[j])]
           away_elo1$elo <- 1300
         }
-      
+
+        home_stats1$game_id <- as.numeric(home_stats1$game_id )
+        away_stats1$game_id <- as.numeric(away_stats1$game_id )
         if(length(home_stats1)>0){home1 = inner_join(home_stats1,home_ppa1,by = 'game_id')}
         if(length(away_stats1)>0){away1 = inner_join(away_stats1,away_ppa1,by = 'game_id')}
       
@@ -119,60 +140,44 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         if(length(home_elo1) >0){home1 = inner_join(home1,home_elo1, by = 'team')}
         if(length(away_elo1) >0){away1= inner_join(away1,away_elo1, by = 'team')}
 
-
+        home_advanced1$game_id <- as.numeric(home_advanced1$game_id )
+        away_advanced1$game_id <- as.numeric(away_advanced1$game_id )
         if(length(home_advanced1)>0){home1 = inner_join(home1,home_advanced1,by = 'game_id')}
         if(length(away_advanced1)>0){away1 = inner_join(away1,away_advanced1,by = 'game_id')}
-      
+
+        
+        # home2 = as.data.frame(home2)
+        # away2= as.data.frame(away2)
+        # home = as.data.frame(home)
+        # away = as.data.frame(away)
+        # home=home2
+        # away=away2
+        
+
       }
       # 
-      # # ### current season ###
-      # # home_stats2 = cfbd_game_team_stats(2023, team = ht[j])
-      # # away_stats2 = cfbd_game_team_stats(2023, team = at[j])
-      # # 
-      # # home_advanced2 = cfbd_stats_game_advanced(2023, team = ht[j])
-      # # away_advanced2 = cfbd_stats_game_advanced(2023, team = at[j])
-      # # 
-      # # 
-      # # home_ppa2 = cfbd_metrics_ppa_games(2023, team = ht[j])
-      # # away_ppa2 = cfbd_metrics_ppa_games(2023, team = at[j])
-      # # 
-      # # 
-      # # home_elo2 = cfbd_ratings_elo(year = 2023,team = ht[j])
-      # # away_elo2 = cfbd_ratings_elo(year = 2023,team = at[j])
-      # # 
-      # # 
-      # # 
-      # # home2 = inner_join(home_stats2,home_ppa2,by = 'game_id')
-      # # away2 = inner_join(away_stats2,away_ppa2,by = 'game_id')
-      # # 
-      # # 
-      # # home2 = inner_join(home2,home_elo2, by = 'team')
-      # # away2= inner_join(away2,away_elo2, by = 'team')
-      # # 
-      # # home2 = inner_join(home2,home_advanced2,by = 'game_id')
-      # # away2 = inner_join(away2,away_advanced2,by = 'game_id')
-      # # 
-      home_stats2 = cfbd_game_team_stats(input_season, team = ht[j])
-      away_stats2 = cfbd_game_team_stats(input_season, team = at[j])
-      
-      home_advanced2 = cfbd_stats_game_advanced(input_season, team = ht[j])
-      away_advanced2 = cfbd_stats_game_advanced(input_season, team = at[j])
-      
-      
-      home_ppa2 = cfbd_metrics_ppa_games(input_season, team = ht[j])
-      away_ppa2 = cfbd_metrics_ppa_games(input_season, team = at[j])
-      
-      
-        home_elo2 = cfbd_ratings_elo(year = input_season,team = ht[j])
+
+        home_stats2 = cfbd_game_team_stats(input_season-1, team = ht[j])
+        away_stats2 = cfbd_game_team_stats(input_season-1, team = at[j])
+        
+        home_advanced2 = cfbd_stats_game_advanced(input_season-1, team = ht[j])
+        away_advanced2 = cfbd_stats_game_advanced(input_season-1, team = at[j])
+        
+        
+        home_ppa2 = cfbd_metrics_ppa_games(input_season-1, team = ht[j])
+        away_ppa2 = cfbd_metrics_ppa_games(input_season-1, team = at[j])
+        
+        
+        home_elo2 = cfbd_ratings_elo(year = input_season-1,team = ht[j])
         if (nrow(home_elo2) != 0){print("good elo data for home team")}else{
-          home_elo2<-cfbd_ratings_elo(year = input_season)[1,]
+          home_elo2<-cfbd_ratings_elo(year = input_season-1)[1,]
           home_elo2$team <- ht[j]
           home_elo2$conference <- conference
           home_elo2$elo <- 1300
         }
-        away_elo2 = cfbd_ratings_elo(year = input_season,team = at[j])
-        if (nrow(away_elo2) != 0){away_elo2 = cfbd_ratings_elo(year = input_season,team = at[j])}else{
-          away_elo2<-cfbd_ratings_elo(year = input_season)[1,]
+        away_elo2 = cfbd_ratings_elo(year = input_season-1,team = at[j])
+        if (nrow(away_elo2) != 0){away_elo2 = cfbd_ratings_elo(year = input_season-1,team = at[j])}else{
+          away_elo2<-cfbd_ratings_elo(year = input_season-1)[1,]
           away_elo2$team <- at[j]
           away_elo2$conference <- conference
           away_elo2$elo <- 1300
@@ -183,8 +188,6 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       home2 = inner_join(home_stats2,home_ppa2,by = 'game_id')
       away2 = inner_join(away_stats2,away_ppa2,by = 'game_id')
       
-      print(home_elo1)
-      print(away_elo1)     
       
       home2 = inner_join(home2,home_elo2, by = 'team')
       away2= inner_join(away2,away_elo2, by = 'team')
@@ -192,15 +195,67 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       home2 = inner_join(home2,home_advanced2,by = 'game_id')
       away2 = inner_join(away2,away_advanced2,by = 'game_id')
       
+      if (previous_season==1){
       if(length(home1) > 0){home = rbind(home1, home2, fill = T)}else{home = home2}
-      if(length(home1) > 0){away = rbind(away1, away2, fill = T)}else{away = away2}
+      if(length(away1) > 0){away = rbind(away1, away2, fill = T)}else{away = away2}
+      }
+    
+    
       
-      home2 = as.data.frame(home2)
-      away2= as.data.frame(away2)
+      
+      home_stats3 = cfbd_game_team_stats(input_season, team = ht[j])
+      away_stats3 = cfbd_game_team_stats(input_season, team = at[j])
+      
+      home_advanced3 = cfbd_stats_game_advanced(input_season, team = ht[j])
+      away_advanced3 = cfbd_stats_game_advanced(input_season, team = at[j])
+      
+      
+      home_ppa3 = cfbd_metrics_ppa_games(input_season, team = ht[j])
+      away_ppa3 = cfbd_metrics_ppa_games(input_season, team = at[j])
+      
+      
+      home_elo3 = cfbd_ratings_elo(year = input_season,team = ht[j])
+      if (nrow(home_elo3) != 0){print("good elo data for home team")}else{
+        home_elo3<-cfbd_ratings_elo(year = input_season)[1,]
+        home_elo3$team <- ht[j]
+        home_elo3$conference <- conference
+        home_elo3$elo <- 1300
+      }
+      away_elo3 = cfbd_ratings_elo(year = input_season,team = at[j])
+      if (nrow(away_elo3) != 0){away_elo3 = cfbd_ratings_elo(year = input_season,team = at[j])}else{
+        away_elo3<-cfbd_ratings_elo(year = input_season)[1,]
+        away_elo3$team <- at[j]
+        away_elo3$conference <- conference
+        away_elo3$elo <- 1300
+      }
+    
+    
+      
+      home3 = inner_join(home_stats3,home_ppa3,by = 'game_id')
+      away3 = inner_join(away_stats3,away_ppa3,by = 'game_id')
+      
+   
+      
+      home3 = inner_join(home3,home_elo3, by = 'team')
+      away3= inner_join(away3,away_elo3, by = 'team')
+
+      home3 = inner_join(home3,home_advanced3,by = 'game_id')
+      away3 = inner_join(away3,away_advanced3,by = 'game_id')
+      
+      if (previous_season == 1){
+      if(length(home) > 0){home = rbind(home, home3, fill = T)}else{home = home}
+      if(length(away) > 0){away = rbind(away, away3, fill = T)}else{away = away}
+      }else{
+      if(length(home2) > 0){home = rbind(home2, home3, fill = T)}else{home = home}
+      if(length(away2) > 0){away = rbind(away2, away3, fill = T)}else{away = away}
+      }
+
+      home3 = as.data.frame(home3)
+      away3= as.data.frame(away3)
       home = as.data.frame(home)
       away = as.data.frame(away)
-      home=home2
-      away=away2
+      # home=home2
+      # away=away2
       
       # non = c()
       # for(i in 1:nrow(home)){
@@ -482,7 +537,8 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       
       
       
-      
+      home$weights <- as.numeric(substr(as.character(home$season),4,4))
+      away$weights <- as.numeric(substr(as.character(away$season),4,4))
       ######### home #############
       X = home[c('elo','opp_elo',
                  'off_overall',
@@ -509,16 +565,18 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         X[,i] = as.numeric(X[,i])
       }
       
-      
-      
+
+
       hp<-c()
       for(k in 1:50){
         r = seq(1,nrow(X), 1)
         s = sample(r, 3 ,replace = F)
-        train_x = data.matrix(X[-s,])
+        train_x = data.matrix(X[-s,!'weights'])
         train_y = data.matrix(Y[-s,])
         test_x = data.matrix(X[s,])
         test_y = data.matrix(Y[s,])
+        train_weights = data.matrix(home$weights[-s])
+        test_weights = data.matrix(home$weights[s])
         
         # set up the cross-validated hyper-parameter search
         xgb_grid_1 = expand.grid(
@@ -542,8 +600,8 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         
         #define predictor and response variables in testing se
         #define final training and testing sets
-        xgb_train = xgb.DMatrix(data = train_x, label = train_y)
-        xgb_test = xgb.DMatrix(data = test_x, label = test_y)
+        xgb_train = xgb.DMatrix(data = train_x, label = train_y$weights)
+        xgb_test = xgb.DMatrix(data = test_x, label = test_y,weights = test_y$weights)
         
         
         watchlist = list(train=xgb_train, test=xgb_test)
@@ -598,7 +656,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
                  'opp_off_success_rate', 'opp_off_explosiveness', 'opp_off_power_success',
                  'opp_def_success_rate', 'opp_def_explosiveness', 'opp_def_power_success',
                  'off_success_rate', 'off_explosiveness', 'off_power_success',
-                 'def_success_rate', 'def_explosiveness', 'def_power_success')]
+                 'def_success_rate', 'def_explosiveness', 'def_power_success','weights')]
       Y = away['points']
       for(i in 1:ncol(X)){
         X[,i] = as.numeric(X[,i])
@@ -617,7 +675,9 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         train_y = data.matrix(Y)
         test_x = data.matrix(X[s,])
         test_y = data.matrix(Y[s,])
-        
+        train_weights = data.matrix(away$weights[-s])
+        test_weights = data.matrix(away$weights[s])
+                
         # set up the cross-validated hyper-parameter search
         xgb_grid_1 = expand.grid(
           nrounds = 1000,
@@ -680,6 +740,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       #y$ht_spread[j] = -11
       print(ht[j]);print(home_points);print(at[j]);print(away_points)
       #setTxtProgressBar(pb2, j)
+
     }
     
     
@@ -716,6 +777,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
     y$value_rating = abs((y$diff)/100)
     y$value_rating = abs((y$value_diff)/100)
     #df = rbind(df,y, fill = TRUE)
+  
   }
   y
 
@@ -759,12 +821,16 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 # at = c('Navy','Ohio',"Hawai'i","Florida International")#,'UTEP')
 
 #p5 <- data.frame()
-conferences<-c("B12","B1G","SEC","PAC")
+conferences<-c("ACC","SEC","B12","B1G","PAC")
+df <- CFB_MODEL(ht=c(),at=c(),input_week=1,input_season=2022,conferences = conferences,previous_season=0,remove_fcs = TRUE)
 
-for (c in conferences){
-df <- CFB_MODEL(ht=c(),at=c(),input_week=1,input_season=2022,conferences = c(c),previous_season=1,remove_fcs = TRUE)
-p5 = rbind(p5,df,fill = TRUE)
-}
+
+
+
+# for (c in conferences){
+# df <- CFB_MODEL(ht=c(),at=c(),input_week=1,input_season=2022,conferences = c(c),previous_season=1,remove_fcs = TRUE)
+# p5 = rbind(p5,df,fill = TRUE)
+# }
 
 
 
@@ -791,7 +857,7 @@ team_info <- team_info %>%
 ############################ gt table ####################################
 
 
-conf = "Pac-12"
+conf = "Big Ten"
 temp <- subset(team_info,conference == conf)
 
 team_plot_data <- p5 %>%
@@ -799,7 +865,7 @@ team_plot_data <- p5 %>%
 
 team_plot_data$conference <- conf
 
-team_plot_data <- team_plot_data[-c(1,4,6,9),]
+#team_plot_data <- team_plot_data[-c(10),]
 
 team_plot_data %>%
   transmute(Conference = conference, Home_Team = ht,
