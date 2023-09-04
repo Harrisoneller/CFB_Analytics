@@ -27,6 +27,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
   week = input_week
   df = data.frame()
+  games <- tibble()
   #conferences = c()
   # 'Ind','MAC','MWC','SBC'
   
@@ -54,7 +55,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
 
 
-    games <- tibble()
+    
     for (c in conferences){
       group<- cfbd_game_info(2023, week = week, conference = c)
       games <- rbind(games,group,fill=TRUE)
@@ -92,7 +93,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
     colnames(y) <- c('ht', 'at', 'ht_score', 'at_score', 'ht_spread') # nolint
 
 
-    
+
     #######################  model #############################
     for (j in 1:length(ht)){
 
@@ -119,14 +120,14 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         if (nrow(home_elo1) != 0){print("good elo data for home1")}else{
           home_elo1<-cfbd_ratings_elo(year = input_season-2)[1,]
           home_elo1$team <- ht[j]
-          home_elo1$conference <- games$home_conference[which(games$home_team == ht[j])]
+          ifelse(nrow(games)<1,home_elo1$conference ="NCAA" ,home_elo1$conference <- games$home_conference[which(games$home_team == ht[j])])
           home_elo1$elo <- 1300
         }
         away_elo1 = cfbd_ratings_elo(year = input_season-2,team = at[j])
         if (nrow(away_elo1) != 0){print("good elo data for away1")}else{
           away_elo1<-cfbd_ratings_elo(year = input_season-2)[1,]
           away_elo1$team <- at[j]
-          away_elo1$conference <- games$away_conference[which(games$away_team == at[j])]
+          ifelse(nrow(games)<1,away_elo1$conference <-"NCAA",away_elo1$conference <- games$away_conference[which(games$away_team == at[j])])
           away_elo1$elo <- 1300
         }
 
@@ -172,14 +173,14 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         if (nrow(home_elo2) != 0){print("good elo data for home team")}else{
           home_elo2<-cfbd_ratings_elo(year = input_season-1)[1,]
           home_elo2$team <- ht[j]
-          home_elo2$conference <- conference
+          ifelse(nrow(games)<1,home_elo2$conference <- "NCAA" ,home_elo2$conference <- games$home_conference[which(games$home_team == ht[j])])
           home_elo2$elo <- 1300
         }
         away_elo2 = cfbd_ratings_elo(year = input_season-1,team = at[j])
         if (nrow(away_elo2) != 0){away_elo2 = cfbd_ratings_elo(year = input_season-1,team = at[j])}else{
           away_elo2<-cfbd_ratings_elo(year = input_season-1)[1,]
           away_elo2$team <- at[j]
-          away_elo2$conference <- conference
+          ifelse(nrow(games)<1,away_elo2$conference <-"NCAA",away_elo2$conference <- games$away_conference[which(games$away_team == at[j])])
           away_elo2$elo <- 1300
         }
       
@@ -218,14 +219,14 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       if (nrow(home_elo3) != 0){print("good elo data for home team")}else{
         home_elo3<-cfbd_ratings_elo(year = input_season)[1,]
         home_elo3$team <- ht[j]
-        home_elo3$conference <- conference
+        ifelse(nrow(games)<1,home_elo3$conference <- "NCAA" ,home_elo3$conference <- games$home_conference[which(games$home_team == ht[j])])
         home_elo3$elo <- 1300
       }
       away_elo3 = cfbd_ratings_elo(year = input_season,team = at[j])
       if (nrow(away_elo3) != 0){away_elo3 = cfbd_ratings_elo(year = input_season,team = at[j])}else{
         away_elo3<-cfbd_ratings_elo(year = input_season)[1,]
         away_elo3$team <- at[j]
-        away_elo3$conference <- conference
+        ifelse(nrow(games)<1,away_elo3$conference <-"NCAA",away_elo3$conference <- games$away_conference[which(games$away_team == at[j])])
         away_elo3$elo <- 1300
       }
     
@@ -571,7 +572,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       for(k in 1:50){
         r = seq(1,nrow(X), 1)
         s = sample(r, 3 ,replace = F)
-        train_x = data.matrix(X[-s,!'weights'])
+        train_x = data.matrix(X[-s,])
         train_y = data.matrix(Y[-s,])
         test_x = data.matrix(X[s,])
         test_y = data.matrix(Y[s,])
@@ -600,8 +601,8 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         
         #define predictor and response variables in testing se
         #define final training and testing sets
-        xgb_train = xgb.DMatrix(data = train_x, label = train_y$weights)
-        xgb_test = xgb.DMatrix(data = test_x, label = test_y,weights = test_y$weights)
+        xgb_train = xgb.DMatrix(data = train_x, label = train_y, weight=train_weights)
+        xgb_test = xgb.DMatrix(data = test_x, label = test_y,weight = test_weights)
         
         
         watchlist = list(train=xgb_train, test=xgb_test)
@@ -656,7 +657,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
                  'opp_off_success_rate', 'opp_off_explosiveness', 'opp_off_power_success',
                  'opp_def_success_rate', 'opp_def_explosiveness', 'opp_def_power_success',
                  'off_success_rate', 'off_explosiveness', 'off_power_success',
-                 'def_success_rate', 'def_explosiveness', 'def_power_success','weights')]
+                 'def_success_rate', 'def_explosiveness', 'def_power_success')]
       Y = away['points']
       for(i in 1:ncol(X)){
         X[,i] = as.numeric(X[,i])
@@ -671,8 +672,8 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
       for(k in 1:50){
         r = seq(1,nrow(X), 1)
         s = sample(r, 3 ,replace = F)
-        train_x = data.matrix(X)
-        train_y = data.matrix(Y)
+        train_x = data.matrix(X[-s,])
+        train_y = data.matrix(Y[-s,])
         test_x = data.matrix(X[s,])
         test_y = data.matrix(Y[s,])
         train_weights = data.matrix(away$weights[-s])
@@ -700,10 +701,10 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         
         #define predictor and response variables in testing se
         #define final training and testing sets
-        xgb_train = xgb.DMatrix(data = train_x, label = train_y)
-        xgb_test = xgb.DMatrix(data = test_x, label = test_y)
+        xgb_train = xgb.DMatrix(data = train_x, label = train_y,weight = train_weights)
+        xgb_test = xgb.DMatrix(data = test_x, label = test_y,weight = test_weights)
         
-        
+
         watchlist = list(train=xgb_train, test=xgb_test)
         
         params <- list(#booster = "gblinear",
@@ -821,8 +822,11 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 # at = c('Navy','Ohio',"Hawai'i","Florida International")#,'UTEP')
 
 #p5 <- data.frame()
-conferences<-c("ACC","SEC","B12","B1G","PAC")
-df <- CFB_MODEL(ht=c(),at=c(),input_week=1,input_season=2022,conferences = conferences,previous_season=0,remove_fcs = TRUE)
+#conferences<-c("ACC","SEC","B12","B1G","PAC")
+
+ht = c('Alabama','Colorado','Iowa State','Miami','Oklahoma','NC State')#,"Jacksonville State")
+at = c('Texas','Nebraska','Iowa','Texas A&M','SMU','Notre Dame')
+df <- CFB_MODEL(ht=ht,at=at,input_week=2,input_season=2023,conferences = c(),previous_season=1,remove_fcs = TRUE)
 
 
 
