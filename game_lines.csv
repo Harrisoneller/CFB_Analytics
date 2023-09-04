@@ -1,0 +1,58 @@
+"","game_id","season","season_type","week","start_date","home_team","home_conference","home_score","away_team","away_conference","away_score","provider","spread","formatted_spread","spread_open","over_under","over_under_open","home_moneyline","away_moneyline"
+"1",401520211,2023,"regular",2,"2023-09-10T00:00:00.000Z","Sam Houston State","Conference USA",NA,"Air Force","Mountain West",NA,"Bovada","14.5","Air Force -14.5","15.0","37.0","37.0",475,-700
+"2",401531427,2023,"regular",2,"2023-09-09T23:00:00.000Z","Arkansas State","Sun Belt",NA,"Memphis","American Athletic",NA,"Bovada","21.5","Memphis -21.5","21.5","58.5","58.5",800,-1600
+"3",401525831,2023,"regular",2,"2023-09-09T23:00:00.000Z","Rice","American Athletic",NA,"Houston","Big 12",NA,"Bovada","9.5","Houston -9.5","9.0","52.5","52.5",275,-350
+"4",401525827,2023,"regular",2,"2023-09-09T23:00:00.000Z","Boise State","Mountain West",NA,"UCF","Big 12",NA,"Bovada","3.5","UCF -3.5","2.0","58.5","58.5",135,-160
+"5",401525827,2023,"regular",2,"2023-09-09T23:00:00.000Z","Boise State","Mountain West",NA,"UCF","Big 12",NA,"DraftKings","-1.5","Boise State -1.5","-1.5",NA,NA,130,NA
+"6",401524002,2023,"regular",2,"2023-09-09T23:00:00.000Z","Texas Tech","Big 12",NA,"Oregon","Pac-12",NA,"Bovada","7.0","Oregon -7.0","7.5","67.0","67.0",205,-245
+"7",401524002,2023,"regular",2,"2023-09-09T23:00:00.000Z","Texas Tech","Big 12",NA,"Oregon","Pac-12",NA,"DraftKings","3.5","Oregon -3.5","3.5",NA,NA,NA,NA
+"8",401520206,2023,"regular",2,"2023-09-09T23:00:00.000Z","Missouri","SEC",NA,"Middle Tennessee","Conference USA",NA,"Bovada","-21.0","Missouri -21.0","-20.5","51.0","51.0",-1600,800
+"9",401520187,2023,"regular",2,"2023-09-09T23:00:00.000Z","Coastal Carolina","Sun Belt",NA,"Jacksonville State","Conference USA",NA,"Bovada","-13.0","Coastal Carolina -13.0","-13.0","57.0","56.5",-550,390
+"10",401524003,2023,"regular",2,"2023-09-10T02:30:00.000Z","USC","Pac-12",NA,"Stanford","Pac-12",NA,"Bovada","-30.0","USC -30.0","-30.0","71.0","71.0",NA,NA
+"11",401523998,2023,"regular",2,"2023-09-10T02:30:00.000Z","Arizona State","Pac-12",NA,"Oklahoma State","Big 12",NA,"Bovada","3.5","Oklahoma State -3.5","3.5","53.0","53.0",NA,NA
+"12",401520186,2023,"regular",2,"2023-09-10T02:30:00.000Z","California","Pac-12",NA,"Auburn","SEC",NA,"Bovada","6.5","Auburn -6.5","7.0","56.5","57.0",225,-275
+"13",401520186,2023,"regular",2,"2023-09-10T02:30:00.000Z","California","Pac-12",NA,"Auburn","SEC",NA,"DraftKings","7","Auburn -7","6",NA,NA,200,NA
+"14",401525493,2023,"regular",2,"2023-09-10T00:30:00.000Z","Florida State","ACC",NA,"Southern Mississippi","Sun Belt",NA,"Bovada","-29.5","Florida State -29.5","-28.0","52.0","52.0",NA,NA
+"15",401524001,2023,"regular",2,"2023-09-09T23:30:00.000Z","San Diego State","Mountain West",NA,"UCLA","Pac-12",NA,"Bovada","13.5","UCLA -13.5","13.0","49.0","49.0",400,-575
+"16",401520217,2023,"regular",2,"2023-09-09T23:30:00.000Z","Washington State","Pac-12",NA,"Wisconsin","Big Ten",NA,"Bovada","3.5","Wisconsin -3.5","4.5","55.0","55.0",155,-180
+"17",401520210,2023,"regular",2,"2023-09-09T23:30:00.000Z","Rutgers","Big Ten",NA,"Temple","American Athletic",NA,"Bovada","-10.0","Rutgers -10.0","-10.0","46.5","46.5",-400,300
+"18",401520205,2023,"regular",2,"2023-09-09T23:30:00.000Z","Mississippi State","SEC",NA,"Arizona","Pac-12",NA,"Bovada","-9.0","Mississippi State -9.0","-13.0","58.0","58.0",NA,NA
+"19",401520204,2023,"regular",2,"2023-09-09T23:30:00.000Z","Minnesota","Big Ten",NA,"Eastern Michigan","Mid-American",NA,"Bovada","-19.5","Minnesota -19.5","-19.5","47.0","47.0",-1300,725
+"20",401520200,2023,"regular",2,"2023-09-09T23:30:00.000Z","Maryland","Big Ten",NA,"Charlotte","American Athletic",NA,"Bovada","-24.5","Maryland -24.5","-24.5","51.0","50.5",-3500,1100
+"21",401520192,2023,"regular",2,"2023-09-09T23:00:00.000Z","Georgia State","Sun Belt",NA,"Connecticut","FBS Independents",NA,"Bovada","-2.5","Georgia State -2.5","-5.0","54.5","54.5",-160,135
+"22",401520183,2023,"regular",2,"2023-09-09T23:00:00.000Z","Alabama","SEC",NA,"Texas","Big 12",NA,"DraftKings","-7","Alabama -7","-7",NA,NA,-310,NA
+"23",401520183,2023,"regular",2,"2023-09-09T23:00:00.000Z","Alabama","SEC",NA,"Texas","Big 12",NA,"Bovada","-7.5","Alabama -7.5","-6.5","56.0","56.0",-300,250
+"24",401520189,2023,"regular",2,"2023-09-09T22:30:00.000Z","Florida International","Conference USA",NA,"North Texas","American Athletic",NA,"Bovada","12.5","North Texas -12.5","14.0","53.5","53.5",410,-585
+"25",401531842,2023,"regular",2,"2023-09-09T22:00:00.000Z","Old Dominion","Sun Belt",NA,"Louisiana","Sun Belt",NA,"Bovada","6.5","Louisiana -6.5","8.0","48.5","48.5",220,NA
+"26",401531419,2023,"regular",2,"2023-09-09T22:00:00.000Z","Florida Atlantic","American Athletic",NA,"Ohio","Mid-American",NA,"Bovada","-5.0","Florida Atlantic -5.0","-5.0","59.0","59.0",-200,170
+"27",401531378,2023,"regular",2,"2023-09-09T22:00:00.000Z","Georgia Southern","Sun Belt",NA,"UAB","American Athletic",NA,"Bovada","-6.5","Georgia Southern -6.5","-5.0","59.0","59.0",-230,190
+"28",401525830,2023,"regular",2,"2023-09-09T22:00:00.000Z","Oklahoma","Big 12",NA,"SMU","American Athletic",NA,"Bovada","-17.0","Oklahoma -17.0","-14.0","70.5","70.5",-950,600
+"29",401520198,2023,"regular",2,"2023-09-09T22:00:00.000Z","Liberty","Conference USA",NA,"New Mexico State","Conference USA",NA,"Bovada","-13.0","Liberty -13.0","-13.0","56.5","56.5",-550,390
+"30",401525495,2023,"regular",2,"2023-09-09T21:15:00.000Z","North Carolina","ACC",NA,"Appalachian State","Sun Belt",NA,"Bovada","-14.5","North Carolina -14.5","-14.5","61.0","61.0",-800,525
+"31",401524004,2023,"regular",2,"2023-09-09T21:00:00.000Z","Washington","Pac-12",NA,"Tulsa","American Athletic",NA,"Bovada","-34.5","Washington -34.5","-35.5","64.5","64.5",NA,NA
+"32",401531411,2023,"regular",2,"2023-09-09T20:00:00.000Z","East Carolina","American Athletic",NA,"Marshall","Sun Belt",NA,"Bovada","2.5","Marshall -2.5","0.0","47.0","46.5",-105,-115
+"33",401520184,2023,"regular",2,"2023-09-09T20:00:00.000Z","Arkansas","SEC",NA,"Kent State","Mid-American",NA,"Bovada","-38.0","Arkansas -38.0","-38.0","59.5","59.5",NA,NA
+"34",401531395,2023,"regular",2,"2023-09-09T19:30:00.000Z","UT San Antonio","American Athletic",NA,"Texas State","Sun Belt",NA,"Bovada",NA,"Texas State -null",NA,"62.5","62.0",NA,335
+"35",401526833,2023,"regular",2,"2023-09-09T19:30:00.000Z","UMass","FBS Independents",NA,"Miami (OH)","Mid-American",NA,"Bovada","5.5","Miami (OH) -5.5","6.5","47.0","47.0",175,-210
+"36",401520214,2023,"regular",2,"2023-09-09T19:30:00.000Z","Tulane","American Athletic",NA,"Ole Miss","SEC",NA,"Bovada","6.5","Ole Miss -6.5","3.5","62.5","62.5",NA,NA
+"37",401520214,2023,"regular",2,"2023-09-09T19:30:00.000Z","Tulane","American Athletic",NA,"Ole Miss","SEC",NA,"DraftKings","6.5","Ole Miss -6.5","6.5",NA,NA,200,NA
+"38",401520207,2023,"regular",2,"2023-09-09T19:30:00.000Z","Northwestern","Big Ten",NA,"UTEP","Conference USA",NA,"Bovada","1.5","UTEP -1.5","0.0","37.5","37.5",-115,-105
+"39",401520202,2023,"regular",2,"2023-09-09T19:30:00.000Z","Michigan","Big Ten",NA,"UNLV","Mountain West",NA,"Bovada","-36.0","Michigan -36.0","-36.0","58.5","58.5",NA,NA
+"40",401520201,2023,"regular",2,"2023-09-09T19:30:00.000Z","Miami","ACC",NA,"Texas A&M","SEC",NA,"Bovada","4.5","Texas A&M -4.5","4.5","49.5","49.5",175,-210
+"41",401520201,2023,"regular",2,"2023-09-09T19:30:00.000Z","Miami","ACC",NA,"Texas A&M","SEC",NA,"DraftKings","7","Texas A&M -7","6.5",NA,NA,170,NA
+"42",401520194,2023,"regular",2,"2023-09-09T19:30:00.000Z","Iowa State","Big 12",NA,"Iowa","Big Ten",NA,"Bovada","4.0","Iowa -4.0","3.5","36.0","36.0",NA,NA
+"43",401525829,2023,"regular",2,"2023-09-09T16:00:00.000Z","Kansas State","Big 12",NA,"Troy","Sun Belt",NA,"Bovada","-16.5","Kansas State -16.5","-17.0","50.0","50.0",-850,550
+"44",401525498,2023,"regular",2,"2023-09-09T16:00:00.000Z","Virginia","ACC",NA,"James Madison","Sun Belt",NA,"Bovada","6.5","James Madison -6.5","6.0","44.0","44.0",210,-250
+"45",401525436,2023,"regular",2,"2023-09-09T16:00:00.000Z","NC State","ACC",NA,"Notre Dame","FBS Independents",NA,"Bovada","7.5","Notre Dame -7.5","7.5","50.5","50.5",270,-340
+"46",401525436,2023,"regular",2,"2023-09-09T16:00:00.000Z","NC State","ACC",NA,"Notre Dame","FBS Independents",NA,"DraftKings","8","Notre Dame -8","8",NA,NA,270,NA
+"47",401523999,2023,"regular",2,"2023-09-09T16:00:00.000Z","Baylor","Big 12",NA,"Utah","Pac-12",NA,"Bovada","6.0","Utah -6.0","7.0","51.0","51.0",195,-235
+"48",401523999,2023,"regular",2,"2023-09-09T16:00:00.000Z","Baylor","Big 12",NA,"Utah","Pac-12",NA,"DraftKings","-1.5","Baylor -1.5","-1.5",NA,NA,185,NA
+"49",401520215,2023,"regular",2,"2023-09-09T16:00:00.000Z","Virginia Tech","ACC",NA,"Purdue","Big Ten",NA,"Bovada","-2.0","Virginia Tech -2.0","0.0","50.0","50.0",-120,100
+"50",401520191,2023,"regular",2,"2023-09-09T16:00:00.000Z","Georgia","SEC",NA,"Ball State","Mid-American",NA,"Bovada","-42.5","Georgia -42.5","-41.5","53.0","53.0",NA,NA
+"51",401520188,2023,"regular",2,"2023-09-09T16:00:00.000Z","Colorado","Pac-12",NA,"Nebraska","Big Ten",NA,"Bovada","-3.0","Colorado -3.0","-2.5","58.5","58.5",-150,130
+"52",401520188,2023,"regular",2,"2023-09-09T16:00:00.000Z","Colorado","Pac-12",NA,"Nebraska","Big Ten",NA,"DraftKings","7.5","Nebraska -7.5","7.5",NA,NA,-155,NA
+"53",401520216,2023,"regular",2,"2023-09-09T15:00:00.000Z","Wake Forest","ACC",NA,"Vanderbilt","SEC",NA,"Bovada","-11.5","Wake Forest -11.5","-10.0","58.5","58.5",-470,345
+"54",401525497,2023,"regular",2,"2023-09-09T19:30:00.000Z","Syracuse","ACC",NA,"Western Michigan","Mid-American",NA,"Bovada","-21.0","Syracuse -21.0","-21.0","52.5","52.5",NA,NA
+"55",401525496,2023,"regular",2,"2023-09-09T22:30:00.000Z","Pittsburgh","ACC",NA,"Cincinnati","Big 12",NA,"Bovada","-7.5","Pittsburgh -7.5","-7.0","48.5","48.5",NA,NA
+"56",401520195,2023,"regular",2,"2023-09-08T23:30:00.000Z","Kansas","Big 12",NA,"Illinois","Big Ten",NA,"Bovada","-3.5","Kansas -3.5","-3.0","55.5","55.5",-180,155
+"57",401520195,2023,"regular",2,"2023-09-08T23:30:00.000Z","Kansas","Big 12",NA,"Illinois","Big Ten",NA,"DraftKings","-2","Kansas -2","-2",NA,NA,-166,NA

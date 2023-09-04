@@ -35,8 +35,8 @@ CFB_MODEL <- dget("CFB_MODEL_FUNCTION.R")
 ```
 
 ```{r, include=F}
-input_season = 2022
-week = 1
+input_season = 2023
+week = 2
 include_scarlett = 'yes'
 
 df = data.frame()
@@ -53,8 +53,8 @@ fbs_teams = subset(fbs_teams, classification == 'fbs')
 # ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # home_team_filter = ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # at = cfbd_game_info(2022, week = week, conference = conference)$away_team[1]
-ht=c('Vanderbilt')
-at=c("Hawai'i")
+ht=c('Tulane')
+at=c("Ole Miss")
 ```
 
 ```{r, include=F}
@@ -62,9 +62,9 @@ at=c("Hawai'i")
 stats <- cfbd_stats_season_team(input_season)
 TEAMS <- cfbd_stats_season_advanced(input_season)
 TEAMS <- inner_join(stats,TEAMS,by = 'team')
-TEAMS$Total_YPG <- TEAMS$total_yds / TEAMS$games
-TEAMS$Passing_YPG <- TEAMS$net_pass_yds / TEAMS$games
-TEAMS$Rushing_YPG <- TEAMS$rush_yds / TEAMS$games
+TEAMS$Total_YPG <- TEAMS$total_yds / (week-1)
+TEAMS$Passing_YPG <- TEAMS$net_pass_yds / (week-1)
+TEAMS$Rushing_YPG <- TEAMS$rush_yds / (week-1)
 TEAMS$Passing_YPA <- TEAMS$net_pass_yds / TEAMS$pass_atts
 TEAMS$Passing_YPC <- TEAMS$net_pass_yds / TEAMS$pass_comps
 TEAMS$Rushing_YPA <- TEAMS$rush_yds / TEAMS$rush_atts
@@ -80,7 +80,7 @@ TEAMS$third_down_conv_rate<- TEAMS$third_down_convs / TEAMS$third_downs
 # Betting information 
 lines <- cfbd_betting_lines(year = 2023, week = week, team = ht)
 line <- subset(lines,provider == "DraftKings")
-if (nrow(line) < 1){line <- subset(lines,provider == "Bovada")}
+if (nrow(line) < 1 | is.na(line$over_under[1]) | is.na(line$spread[1]) ){line <- subset(lines,provider == "Bovada")}
 # bet$home_score <- ifelse(as.numeric(bet$spread) < 0, as.numeric(bet$over_under) + as.numeric(bet$spread),  as.numeric(bet$over_under) - as.numeric(bet$spread))
 # 
 # bet$away_score <- as.numeric(bet$over_under) - as.numeric(bet$home_score)
@@ -123,14 +123,14 @@ bet %>%
     subtitle = md("Harrison Eller")
   ) %>% 
   fmt_number(
-    columns = c(Home_Score, Away_Score, Game_Total)
+    columns = c(Home_Score, Away_Score, Game_Total, Home_Spread)
   ) %>%
   tab_style(
     style = list(
       cell_text(weight = "bold")
     ),
     locations = cells_body(
-      columns = c(Home_Score, Away_Score, Game_Total)
+      columns = c(Home_Score, Away_Score, Game_Total,Home_Spread)
     )
   )
 ```
@@ -141,7 +141,7 @@ bet %>%
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 if (include_scarlett == 'yes' || include_scarlett == 'y' ) {
-team_plot_data <- invisible(CFB_MODEL(ht=ht,at=at,input_week=1,input_season=input_season,conferences = c(),previous_season=1,remove_fcs = TRUE))
+team_plot_data <- invisible(CFB_MODEL(ht=ht,at=at,input_week=week,input_season=input_season,conferences = c(),previous_season=1,remove_fcs = TRUE))
 
 home_team = ht
 #y=team_plot_data
@@ -445,7 +445,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(off_success_rate),
         colors = scales::col_numeric(
             palette = c('red','white','green'),
-            domain = c(min(TEAMS$off_success_rate),max(TEAMS$off_success_rate)
+            domain = c(min(TEAMS$off_success_rate,na.rm = TRUE),max(TEAMS$off_success_rate,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -453,7 +453,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(off_explosiveness),
         colors = scales::col_numeric(
             palette = c('red','white','green'),
-            domain = c(min(TEAMS$off_explosiveness),max(TEAMS$off_explosiveness)
+            domain = c(min(TEAMS$off_explosiveness,na.rm = TRUE),max(TEAMS$off_explosiveness,na.rm = TRUE)
             )
         )
     )  %>% 
@@ -461,7 +461,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(off_power_success),
         colors = scales::col_numeric(
             palette = c('red','white','green'),
-            domain = c(min(TEAMS$off_power_success),max(TEAMS$off_power_success)
+            domain = c(min(TEAMS$off_power_success,na.rm = TRUE),max(TEAMS$off_power_success,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -469,7 +469,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(off_passing_plays_success_rate),
         colors = scales::col_numeric(
             palette = c('red','white','green'),
-            domain = c(min(TEAMS$off_passing_plays_success_rate),max(TEAMS$off_passing_plays_success_rate)
+            domain = c(min(TEAMS$off_passing_plays_success_rate,na.rm = TRUE),max(TEAMS$off_passing_plays_success_rate,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -477,7 +477,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(off_passing_plays_explosiveness),
         colors = scales::col_numeric(
             palette = c('red','white','green'),
-            domain = c(min(TEAMS$off_passing_plays_explosiveness),max(TEAMS$off_passing_plays_explosiveness)
+            domain = c(min(TEAMS$off_passing_plays_explosiveness,na.rm = TRUE),max(TEAMS$off_passing_plays_explosiveness,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -485,7 +485,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(off_rushing_plays_success_rate),
         colors = scales::col_numeric(
             palette = c('red','white','green'),
-            domain = c(min(TEAMS$off_rushing_plays_success_rate),max(TEAMS$off_rushing_plays_success_rate)
+            domain = c(min(TEAMS$off_rushing_plays_success_rate,na.rm = TRUE),max(TEAMS$off_rushing_plays_success_rate,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -493,7 +493,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(off_rushing_plays_explosiveness),
         colors = scales::col_numeric(
             palette = c('red','white','green'),
-            domain = c(min(TEAMS$off_rushing_plays_explosiveness),max(TEAMS$off_rushing_plays_explosiveness)
+            domain = c(min(TEAMS$off_rushing_plays_explosiveness,na.rm = TRUE),max(TEAMS$off_rushing_plays_explosiveness,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -549,7 +549,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(def_success_rate),
         colors = scales::col_numeric(
             palette = c('green','white','red'),
-            domain = c(min(TEAMS$def_success_rate),max(TEAMS$def_success_rate)
+            domain = c(min(TEAMS$def_success_rate,na.rm = TRUE),max(TEAMS$def_success_rate,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -557,7 +557,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(def_explosiveness),
         colors = scales::col_numeric(
             palette = c('green','white','red'),
-            domain = c(min(TEAMS$def_explosiveness),max(TEAMS$def_explosiveness)
+            domain = c(min(TEAMS$def_explosiveness,na.rm = TRUE),max(TEAMS$def_explosiveness,na.rm = TRUE)
             )
         )
     )  %>% 
@@ -565,7 +565,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(def_power_success),
         colors = scales::col_numeric(
             palette = c('green','white','red'),
-            domain = c(min(TEAMS$def_power_success),max(TEAMS$def_power_success)
+            domain = c(min(TEAMS$def_power_success,na.rm = TRUE),max(TEAMS$def_power_success,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -573,7 +573,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(def_passing_plays_success_rate),
         colors = scales::col_numeric(
             palette = c('green','white','red'),
-            domain = c(min(TEAMS$def_passing_plays_success_rate),max(TEAMS$def_passing_plays_success_rate)
+            domain = c(min(TEAMS$def_passing_plays_success_rate,na.rm = TRUE),max(TEAMS$def_passing_plays_success_rate,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -581,7 +581,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(def_passing_plays_explosiveness),
         colors = scales::col_numeric(
             palette = c('green','white','red'),
-            domain = c(min(TEAMS$def_passing_plays_explosiveness),max(TEAMS$def_passing_plays_explosiveness)
+            domain = c(min(TEAMS$def_passing_plays_explosiveness,na.rm = TRUE),max(TEAMS$def_passing_plays_explosiveness,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -589,7 +589,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(def_rushing_plays_success_rate),
         colors = scales::col_numeric(
             palette = c('green','white','red'),
-            domain = c(min(TEAMS$def_rushing_plays_success_rate),max(TEAMS$def_rushing_plays_success_rate)
+            domain = c(min(TEAMS$def_rushing_plays_success_rate,na.rm = TRUE),max(TEAMS$def_rushing_plays_success_rate,na.rm = TRUE)
             )
         )
     ) %>% 
@@ -597,7 +597,7 @@ gt(rowname_col = c("Team")) %>%
         columns = c(def_rushing_plays_explosiveness),
         colors = scales::col_numeric(
             palette = c('green','white','red'),
-            domain = c(min(TEAMS$def_rushing_plays_explosiveness),max(TEAMS$def_rushing_plays_explosiveness)
+            domain = c(min(TEAMS$def_rushing_plays_explosiveness,na.rm = TRUE),max(TEAMS$def_rushing_plays_explosiveness,na.rm = TRUE)
             )
         )
     ) %>% 

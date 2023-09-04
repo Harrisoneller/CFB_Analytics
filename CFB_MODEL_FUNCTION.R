@@ -120,7 +120,7 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
         if (nrow(home_elo1) != 0){print("good elo data for home1")}else{
           home_elo1<-cfbd_ratings_elo(year = input_season-2)[1,]
           home_elo1$team <- ht[j]
-          ifelse(nrow(games)<1,home_elo1$conference ="NCAA" ,home_elo1$conference <- games$home_conference[which(games$home_team == ht[j])])
+          ifelse(nrow(games)<1,home_elo1$conference <-"NCAA" ,home_elo1$conference <- games$home_conference[which(games$home_team == ht[j])])
           home_elo1$elo <- 1300
         }
         away_elo1 = cfbd_ratings_elo(year = input_season-2,team = at[j])
@@ -817,87 +817,77 @@ CFB_MODEL <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),pr
 
 
 #team = cfbd_team_info(year = 2023)
-#team$mascot[which(team$school == "Jacksonville State")]
-# ht = c('Notre Dame','San Diego State','Vanderbilt',"Louisiana Tech")#,"Jacksonville State")
-# at = c('Navy','Ohio',"Hawai'i","Florida International")#,'UTEP')
 
 #p5 <- data.frame()
 #conferences<-c("ACC","SEC","B12","B1G","PAC")
 
-ht = c('Alabama','Colorado','Iowa State','Miami','Oklahoma','NC State')#,"Jacksonville State")
-at = c('Texas','Nebraska','Iowa','Texas A&M','SMU','Notre Dame')
-df <- CFB_MODEL(ht=ht,at=at,input_week=2,input_season=2023,conferences = c(),previous_season=1,remove_fcs = TRUE)
+# ht = c('Alabama','Colorado','Iowa State','Miami','Oklahoma','NC State')#,"Jacksonville State")
+# at = c('Texas','Nebraska','Iowa','Texas A&M','SMU','Notre Dame')
+# df <- CFB_MODEL(ht=ht,at=at,input_week=2,input_season=2023,conferences = c(),previous_season=1,remove_fcs = TRUE)
 
 
 
 
-# for (c in conferences){
-# df <- CFB_MODEL(ht=c(),at=c(),input_week=1,input_season=2022,conferences = c(c),previous_season=1,remove_fcs = TRUE)
-# p5 = rbind(p5,df,fill = TRUE)
+# p5<-p5[-which(p5$ht == TRUE),]
+# y<-p5
+
+# team_plot_data = y
+# team_plot_data$conference = 0
+
+# for(i in 1:nrow(team_plot_data)){
+#   team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
+
 # }
 
 
 
-p5<-p5[-which(p5$ht == TRUE),]
-y<-p5
+# library(gt)
 
-team_plot_data = y
-team_plot_data$conference = 0
-
-for(i in 1:nrow(team_plot_data)){
-  team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
-
-}
+# team_info <- cfbd_team_info()
+# team_info <- team_info %>%
+#       filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
 
 
-
-library(gt)
-
-team_info <- cfbd_team_info()
-team_info <- team_info %>%
-      filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
+# ############################ gt table ####################################
 
 
-############################ gt table ####################################
+# conf = "Big Ten"
+# temp <- subset(team_info,conference == conf)
 
+# team_plot_data <- p5 %>%
+#         filter(ht %in% temp$school | at %in% temp$school)
 
-conf = "Big Ten"
-temp <- subset(team_info,conference == conf)
+# team_plot_data$conference <- conf
 
-team_plot_data <- p5 %>%
-        filter(ht %in% temp$school | at %in% temp$school)
+# #team_plot_data <- team_plot_data[-c(10),]
 
-team_plot_data$conference <- conf
-
-#team_plot_data <- team_plot_data[-c(10),]
-
-team_plot_data %>%
-  transmute(Conference = conference, Home_Team = ht,
-            Home_Score = round(ht_score,2),
-            Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
-  arrange(desc(Conference)) %>%
-  gt() %>%
-  gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
-  gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
-  cols_align(
-    align = c('center'),
-    columns = everything()
-  ) %>%
-  tab_header(
-    title = md("**Scarlett Score Predictions**"),
-    subtitle = md("Harrison Eller")
-  ) %>%
-  fmt_number(
-    columns = c("Home_Score", "Away_Score")
-  ) %>%
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-    ),
-    locations = cells_body(
-      columns = c("Home_Score", "Away_Score")
-    )
-  )
+# team_plot_data %>%
+#   transmute(Conference = conference, Home_Team = ht,
+#             Home_Score = round(ht_score,2),
+#             Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
+#   arrange(desc(Conference)) %>%
+#   gt() %>%
+#   gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
+#   gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
+#   cols_align(
+#     align = c('center'),
+#     columns = everything()
+#   ) %>%
+#   tab_header(
+#     title = md("**Scarlett Score Predictions**"),
+#     subtitle = md("Harrison Eller")
+#   ) %>%
+#   fmt_number(
+#     columns = c("Home_Score", "Away_Score")
+#   ) %>%
+#   tab_style(
+#     style = list(
+#       cell_text(weight = "bold")
+#     ),
+#     locations = cells_body(
+#       columns = c("Home_Score", "Away_Score")
+#     )
+#   )
 
 
 
