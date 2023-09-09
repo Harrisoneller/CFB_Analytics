@@ -30,7 +30,8 @@ library(caret)
 library(car)
 library(tidyverse)
 library(gt)
-CFB_MODEL <- dget("CFB_MODEL_FUNCTION.R")
+#CFB_MODEL <- dget("CFB_MODEL_FUNCTION.R")
+CFB_MODEL <- dget("cfb_model_update.R")
 
 ```
 
@@ -53,8 +54,8 @@ fbs_teams = subset(fbs_teams, classification == 'fbs')
 # ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # home_team_filter = ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # at = cfbd_game_info(2022, week = week, conference = conference)$away_team[1]
-ht=c('Tulane')
-at=c("Ole Miss")
+ht=c('Alabama')
+at=c("Texas")
 ```
 
 ```{r, include=F}
@@ -79,6 +80,7 @@ TEAMS$third_down_conv_rate<- TEAMS$third_down_convs / TEAMS$third_downs
 # Betting information 
 # Betting information 
 lines <- cfbd_betting_lines(year = 2023, week = week, team = ht)
+
 line <- subset(lines,provider == "DraftKings")
 if (nrow(line) < 1 | is.na(line$over_under[1]) | is.na(line$spread[1]) ){line <- subset(lines,provider == "Bovada")}
 # bet$home_score <- ifelse(as.numeric(bet$spread) < 0, as.numeric(bet$over_under) + as.numeric(bet$spread),  as.numeric(bet$over_under) - as.numeric(bet$spread))
