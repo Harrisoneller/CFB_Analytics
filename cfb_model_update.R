@@ -97,7 +97,7 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
     colnames(y) <- c('ht', 'at', 'ht_score', 'at_score', 'ht_spread') # nolint
     
 
-    
+
     #######################  model #############################
     for (j in 1:length(ht)){
       
@@ -315,8 +315,9 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
       game_stats_away = data.frame()
       advanced_stats = data.frame()
       #advanced_stats_away = data.frame()
+      if(previous_season == 1){prev <- 2}else{prev<-1}
       
-      for (s in (input_season-2):(input_season)){
+      for (s in (input_season-prev):(input_season)){
         temp1=cfbd_ratings_elo(year = s)
         historical_elo = rbind(historical_elo,temp1, fill = TRUE)
         
@@ -341,7 +342,7 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
       
       
 
-      i=1
+      
       for (i in 1:nrow(home)){
 
         ################################### home
@@ -417,32 +418,38 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
                                  opp_off_overall = ( median(as.numeric(recent_home$def_overall)) + median(as.numeric(recent_away$off_overall)) )/2,
                                  sacks_allowed = (median(as.numeric(recent_home$sacks_allowed)) + median(as.numeric(recent_away$sacks)))/2,
                                  sacks = (median(as.numeric(recent_home$sacks)) + median(as.numeric(recent_away$sacks_allowed)))/2 ,
+                                 net_passing_yards = (median(as.numeric(recent_home$net_passing_yards)) + median(as.numeric(recent_away$net_passing_yards_allowed)))/2 ,
+                                 rushing_yards = (median(as.numeric(recent_home$rushing_yards)) + median(as.numeric(recent_away$rushing_yards_allowed)))/2 ,
 
-                                 def_rushing = (median(as.numeric(recent_home$def_rushing)) + median(as.numeric(recent_away$off_rushing)))/2,
-                                 opp_def_rushing =(median(as.numeric(recent_away$def_rushing)) + median(as.numeric(recent_home$off_rushing)))/2,
-                                 def_passing = (median(as.numeric(recent_home$def_passing)) + median(as.numeric(recent_away$off_passing)))/2,
-                                 opp_def_passing = (median(as.numeric(recent_home$off_passing)) + median(as.numeric(recent_away$def_passing)))/2,
-                                 off_rushing = (median(as.numeric(recent_home$off_rushing)) + median(as.numeric(recent_away$def_rushing)))/2,
-                                 opp_off_rushing =(median(as.numeric(recent_home$def_rushing)) + median(as.numeric(recent_away$off_rushing)))/2,
-                                 off_passing = (median(as.numeric(recent_home$off_passing)) + median(as.numeric(recent_away$def_passing)))/2,
-                                 opp_off_passing = (median(as.numeric(recent_home$def_passing)) + median(as.numeric(recent_away$off_passing)))/2, 
                                  home_dummy = 1, 
                                  turnovers = (median(as.numeric(recent_home$turnovers)) + median(as.numeric(recent_away$takeaways)))/2,
                                  opp_turnovers =  (median(as.numeric(recent_away$turnovers)) + median(as.numeric(recent_home$takeaways)))/2,
                                  total_yards = (median(as.numeric(recent_home$total_yards)) + median(as.numeric(recent_away$total_yards_allowed)))/2, 
                                  opp_total_yards = (median(as.numeric(recent_away$total_yards)) + median(as.numeric(recent_home$total_yards_allowed)))/2, 
-                                 opp_off_success_rate = (median(as.numeric(recent_away$off_success_rate)) + median(as.numeric(recent_home$def_success_rate)))/2, 
-                                 opp_off_explosiveness = (median(as.numeric(recent_away$off_explosiveness)) + median(as.numeric(recent_home$def_explosiveness)))/2,
-                                 opp_off_power_success =(median(as.numeric(recent_away$off_power_success)) + median(as.numeric(recent_home$def_power_success)))/2,
-                                 opp_def_success_rate = (median(as.numeric(recent_away$def_success_rate)) + median(as.numeric(recent_home$off_success_rate)))/2, 
-                                 opp_def_explosiveness = (median(as.numeric(recent_away$def_explosiveness)) + median(as.numeric(recent_home$off_explosiveness)))/2,
-                                 opp_def_power_success = (median(as.numeric(recent_away$def_power_success)) + median(as.numeric(recent_home$off_power_success)))/2,
+
                                  off_success_rate = (median(as.numeric(recent_home$off_success_rate)) + median(as.numeric(recent_away$def_success_rate)))/2,
-                                 off_explosiveness = (median(as.numeric(recent_home$off_explosiveness)) + median(as.numeric(recent_away$def_explosiveness)))/2,
-                                 off_power_success = (median(as.numeric(recent_home$off_power_success)) + median(as.numeric(recent_away$def_power_success)))/2,
-                                 def_success_rate = (median(as.numeric(recent_home$def_success_rate)) + median(as.numeric(recent_away$off_success_rate)))/2, 
-                                 def_explosiveness = (median(as.numeric(recent_home$def_explosiveness)) + median(as.numeric(recent_away$off_explosiveness)))/2,
-                                 def_power_success = (median(as.numeric(recent_home$def_power_success)) + median(as.numeric(recent_away$off_power_success)))/2 )
+
+                                 def_success_rate = (median(as.numeric(recent_home$def_success_rate)) + median(as.numeric(recent_away$off_success_rate)))/2 )
+   # 
+   #                                  def_rushing = (median(as.numeric(recent_home$def_rushing)) + median(as.numeric(recent_away$off_rushing)))/2,
+   #                                  opp_def_rushing =(median(as.numeric(recent_away$def_rushing)) + median(as.numeric(recent_home$off_rushing)))/2,
+   #                                  def_passing = (median(as.numeric(recent_home$def_passing)) + median(as.numeric(recent_away$off_passing)))/2,
+   #                                  opp_def_passing = (median(as.numeric(recent_home$off_passing)) + median(as.numeric(recent_away$def_passing)))/2,
+   #                                  off_rushing = (median(as.numeric(recent_home$off_rushing)) + median(as.numeric(recent_away$def_rushing)))/2,
+   #                                  opp_off_rushing =(median(as.numeric(recent_home$def_rushing)) + median(as.numeric(recent_away$off_rushing)))/2,
+   #                                  off_passing = (median(as.numeric(recent_home$off_passing)) + median(as.numeric(recent_away$def_passing)))/2,
+   #                                  opp_off_passing = (median(as.numeric(recent_home$def_passing)) + median(as.numeric(recent_away$off_passing)))/2, 
+                                # opp_off_success_rate = (median(as.numeric(recent_away$off_success_rate)) + median(as.numeric(recent_home$def_success_rate)))/2, 
+                                # opp_off_explosiveness = (median(as.numeric(recent_away$off_explosiveness)) + median(as.numeric(recent_home$def_explosiveness)))/2,
+                                # opp_off_power_success =(median(as.numeric(recent_away$off_power_success)) + median(as.numeric(recent_home$def_power_success)))/2,
+                                # opp_def_success_rate = (median(as.numeric(recent_away$def_success_rate)) + median(as.numeric(recent_home$off_success_rate)))/2, 
+                                # opp_def_explosiveness = (median(as.numeric(recent_away$def_explosiveness)) + median(as.numeric(recent_home$off_explosiveness)))/2,
+                                # opp_def_power_success = (median(as.numeric(recent_away$def_power_success)) + median(as.numeric(recent_home$off_power_success)))/2,
+                                # off_explosiveness = (median(as.numeric(recent_home$off_explosiveness)) + median(as.numeric(recent_away$def_explosiveness)))/2,
+                                # off_power_success = (median(as.numeric(recent_home$off_power_success)) + median(as.numeric(recent_away$def_power_success)))/2,
+                                 # def_explosiveness = (median(as.numeric(recent_home$def_explosiveness)) + median(as.numeric(recent_away$off_explosiveness)))/2,
+                                 # def_power_success = (median(as.numeric(recent_home$def_power_success)) + median(as.numeric(recent_away$off_power_success)))/2 
+
       
       
    
@@ -454,31 +461,37 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
                                  opp_off_overall = ( median(as.numeric(recent_away$def_overall)) + median(as.numeric(recent_home$off_overall)) )/2,
                                  sacks_allowed = (median(as.numeric(recent_away$sacks_allowed)) + median(as.numeric(recent_home$sacks)))/2,
                                  sacks = (median(as.numeric(recent_away$sacks)) + median(as.numeric(recent_home$sacks_allowed)))/2 ,
-                                 def_rushing = (median(as.numeric(recent_away$def_rushing)) + median(as.numeric(recent_home$off_rushing)))/2,
-                                 opp_def_rushing =(median(as.numeric(recent_home$def_rushing)) + median(as.numeric(recent_away$off_rushing)))/2,
-                                 def_passing = (median(as.numeric(recent_away$def_passing)) + median(as.numeric(recent_home$off_passing)))/2,
-                                 opp_def_passing = (median(as.numeric(recent_away$off_passing)) + median(as.numeric(recent_home$def_passing)))/2,
-                                 off_rushing = (median(as.numeric(recent_away$off_rushing)) + median(as.numeric(recent_home$def_rushing)))/2,
-                                 opp_off_rushing =(median(as.numeric(recent_away$def_rushing)) + median(as.numeric(recent_home$off_rushing)))/2,
-                                 off_passing = (median(as.numeric(recent_away$off_passing)) + median(as.numeric(recent_home$def_passing)))/2,
-                                 opp_off_passing = (median(as.numeric(recent_away$def_passing)) + median(as.numeric(recent_home$off_passing)))/2, 
+                                 net_passing_yards = (median(as.numeric(recent_away$net_passing_yards)) + median(as.numeric(recent_home$net_passing_yards_allowed)))/2 ,
+                                 rushing_yards = (median(as.numeric(recent_away$rushing_yards)) + median(as.numeric(recent_home$rushing_yards_allowed)))/2 ,
+
                                  home_dummy = 0, 
                                  turnovers = (median(as.numeric(recent_away$turnovers)) + median(as.numeric(recent_home$takeaways)))/2,
                                  opp_turnovers =  (median(as.numeric(recent_home$turnovers)) + median(as.numeric(recent_away$takeaways)))/2,
                                  total_yards = (median(as.numeric(recent_away$total_yards)) + median(as.numeric(recent_home$total_yards_allowed)))/2, 
                                  opp_total_yards = (median(as.numeric(recent_home$total_yards)) + median(as.numeric(recent_away$total_yards_allowed)))/2, 
-                                 opp_off_success_rate = (median(as.numeric(recent_home$off_success_rate)) + median(as.numeric(recent_away$def_success_rate)))/2, 
-                                 opp_off_explosiveness = (median(as.numeric(recent_home$off_explosiveness)) + median(as.numeric(recent_away$def_explosiveness)))/2,
-                                 opp_off_power_success =(median(as.numeric(recent_home$off_power_success)) + median(as.numeric(recent_away$def_power_success)))/2,
-                                 opp_def_success_rate = (median(as.numeric(recent_home$def_success_rate)) + median(as.numeric(recent_away$off_success_rate)))/2, 
-                                 opp_def_explosiveness = (median(as.numeric(recent_home$def_explosiveness)) + median(as.numeric(recent_away$off_explosiveness)))/2,
-                                 opp_def_power_success = (median(as.numeric(recent_home$def_power_success)) + median(as.numeric(recent_away$off_power_success)))/2,
+
                                  off_success_rate = (median(as.numeric(recent_away$off_success_rate)) + median(as.numeric(recent_home$def_success_rate)))/2,
-                                 off_explosiveness = (median(as.numeric(recent_away$off_explosiveness)) + median(as.numeric(recent_home$def_explosiveness)))/2,
-                                 off_power_success = (median(as.numeric(recent_away$off_power_success)) + median(as.numeric(recent_home$def_power_success)))/2,
-                                 def_success_rate = (median(as.numeric(recent_away$def_success_rate)) + median(as.numeric(recent_home$off_success_rate)))/2, 
-                                 def_explosiveness = (median(as.numeric(recent_away$def_explosiveness)) + median(as.numeric(recent_home$off_explosiveness)))/2,
-                                 def_power_success = (median(as.numeric(recent_away$def_power_success)) + median(as.numeric(recent_home$off_power_success)))/2 )
+
+                                 def_success_rate = (median(as.numeric(recent_away$def_success_rate)) + median(as.numeric(recent_home$off_success_rate)))/2)
+                                 # def_rushing = (median(as.numeric(recent_away$def_rushing)) + median(as.numeric(recent_home$off_rushing)))/2,
+                                 # opp_def_rushing =(median(as.numeric(recent_home$def_rushing)) + median(as.numeric(recent_away$off_rushing)))/2,
+                                 # def_passing = (median(as.numeric(recent_away$def_passing)) + median(as.numeric(recent_home$off_passing)))/2,
+                                 # opp_def_passing = (median(as.numeric(recent_away$off_passing)) + median(as.numeric(recent_home$def_passing)))/2,
+                                 # off_rushing = (median(as.numeric(recent_away$off_rushing)) + median(as.numeric(recent_home$def_rushing)))/2,
+                                 # opp_off_rushing =(median(as.numeric(recent_away$def_rushing)) + median(as.numeric(recent_home$off_rushing)))/2,
+                                 # off_passing = (median(as.numeric(recent_away$off_passing)) + median(as.numeric(recent_home$def_passing)))/2,
+                                 # opp_off_passing = (median(as.numeric(recent_away$def_passing)) + median(as.numeric(recent_home$off_passing)))/2, 
+                                 # opp_off_success_rate = (median(as.numeric(recent_home$off_success_rate)) + median(as.numeric(recent_away$def_success_rate)))/2, 
+                                 # opp_off_explosiveness = (median(as.numeric(recent_home$off_explosiveness)) + median(as.numeric(recent_away$def_explosiveness)))/2,
+                                 # opp_off_power_success =(median(as.numeric(recent_home$off_power_success)) + median(as.numeric(recent_away$def_power_success)))/2,
+                                 # opp_def_success_rate = (median(as.numeric(recent_home$def_success_rate)) + median(as.numeric(recent_away$off_success_rate)))/2, 
+                                 # opp_def_explosiveness = (median(as.numeric(recent_home$def_explosiveness)) + median(as.numeric(recent_away$off_explosiveness)))/2,
+                                 # opp_def_power_success = (median(as.numeric(recent_home$def_power_success)) + median(as.numeric(recent_away$off_power_success)))/2,
+                                 # off_explosiveness = (median(as.numeric(recent_away$off_explosiveness)) + median(as.numeric(recent_home$def_explosiveness)))/2,
+                                 # off_power_success = (median(as.numeric(recent_away$off_power_success)) + median(as.numeric(recent_home$def_power_success)))/2,
+                                 # def_explosiveness = (median(as.numeric(recent_away$def_explosiveness)) + median(as.numeric(recent_home$off_explosiveness)))/2,
+                                 # def_power_success = (median(as.numeric(recent_away$def_power_success)) + median(as.numeric(recent_home$off_power_success)))/2 
+                                 
       
       
       cols <-colnames(new_data_home)
@@ -490,7 +503,7 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
       ######### home #############
 
       X = home[cols]
-      
+      cols %in% colnames(home)
       Y = home['points']
       for(i in 1:ncol(X)){
         X[,i] = as.numeric(X[,i])
@@ -705,9 +718,35 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
 
 
 
-#y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=2,input_season=2023,conferences = c("SEC"),previous_season=1,remove_fcs = TRUE)
 
 
+games<-cfbd_game_info(2023, week = 3)
+games <- subset(games,start_date < "2023-09-16")
+
+
+ht = games$home_team
+at = games$away_team
+
+y <- CFB_PROJECTIONS(ht=ht,at=at,input_week=3,input_season=2023,conferences = c(),previous_season=0,remove_fcs = TRUE)
+
+
+
+
+
+y
+
+
+
+
+df <- data.frame()
+
+for (conf in c("SEC","ACC","B1G","B12",'PAC')){
+y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=3,input_season=2023,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
+df<-rbind(df,y,fill=TRUE)
+}
+
+
+p5<-df
 #team = cfbd_team_info(year = 2023)
 
 #p5 <- data.frame()
@@ -720,66 +759,72 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
 
 
 
-# p5<-p5[-which(p5$ht == TRUE),]
-# y<-p5
-
-# team_plot_data = y
-# team_plot_data$conference = 0
-
-# for(i in 1:nrow(team_plot_data)){
-#   team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
-
-# }
 
 
 
-# library(gt)
 
-# team_info <- cfbd_team_info()
-# team_info <- team_info %>%
-#       filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
+p5<-p5[-which(p5$ht == TRUE),]
+y<-p5
+
+team_plot_data = y
+team_plot_data$conference = 0
+
+for(i in 1:nrow(team_plot_data)){
+   team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
+
+}
+
+p5 = p5[!duplicated(p5$ht),]
+
+library(gt)
+
+ team_info <- cfbd_team_info()
+ team_info <- team_info %>%
+       filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
 
 
 # ############################ gt table ####################################
 
+ team_plot_data$at_score[9]<-23.37
+ 
+ conf = "SEC"
+ temp <- subset(team_info,conference == conf)
 
-# conf = "Big Ten"
-# temp <- subset(team_info,conference == conf)
+ team_plot_data <- p5 %>%
+         filter(ht %in% temp$school | at %in% temp$school)
 
-# team_plot_data <- p5 %>%
-#         filter(ht %in% temp$school | at %in% temp$school)
+team_plot_data$conference <- conf
 
-# team_plot_data$conference <- conf
 
-# #team_plot_data <- team_plot_data[-c(10),]
 
-# team_plot_data %>%
-#   transmute(Conference = conference, Home_Team = ht,
-#             Home_Score = round(ht_score,2),
-#             Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
-#   arrange(desc(Conference)) %>%
-#   gt() %>%
-#   gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
-#   gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
-#   cols_align(
-#     align = c('center'),
-#     columns = everything()
-#   ) %>%
-#   tab_header(
-#     title = md("**Scarlett Score Predictions**"),
-#     subtitle = md("Harrison Eller")
-#   ) %>%
-#   fmt_number(
-#     columns = c("Home_Score", "Away_Score")
-#   ) %>%
-#   tab_style(
-#     style = list(
-#       cell_text(weight = "bold")
-#     ),
-#     locations = cells_body(
-#       columns = c("Home_Score", "Away_Score")
-#     )
-#   )
+
+ team_plot_data %>%
+   transmute(Conference = conference, Home_Team = ht,
+             Home_Score = round(ht_score,2),
+             Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
+   arrange(desc(Conference)) %>%
+   gt() %>%
+   gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
+   gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
+   cols_align(
+     align = c('center'),
+     columns = everything()
+   ) %>%
+   tab_header(
+     title = md("**Scarlett Score Predictions**"),
+     subtitle = md("Harrison Eller")
+   ) %>%
+   fmt_number(
+     columns = c("Home_Score", "Away_Score")
+   ) %>%
+   tab_style(
+     style = list(
+       cell_text(weight = "bold")
+     ),
+     locations = cells_body(
+       columns = c("Home_Score", "Away_Score")
+     )
+   )
 
 
 
