@@ -25,8 +25,6 @@ setwd("C:/Users/Harrison Eller/CFB_Analytics")
 
 
 
-
-
 CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = c(),previous_season=1,remove_fcs = FALSE){
   
   
@@ -407,25 +405,27 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
       
       home['takeaways'] <- (as.numeric(home$interceptions) + as.numeric(home$fumbles_recovered))
       away['takeaways'] <- (as.numeric(away$interceptions) + as.numeric(away$fumbles_recovered))
-      recent_home <- home[(nrow(home)-10):nrow(home),]
-      recent_away <- home[(nrow(home)-10):nrow(home),]
+      recent_home <- subset(home,season==2023)
+      recent_away <- subset(away,season==2023)
+      # recent_home <- home[(nrow(home)-10):nrow(home),]
+      # recent_away <- home[(nrow(home)-10):nrow(home),]
       
-      new_data_home = data.frame(elo = recent_home$elo[nrow(recent_home)], 
+      new_data_home = data.frame(#elo = recent_home$elo[nrow(recent_home)], 
                                  opp_elo = recent_away$elo[nrow(recent_away)], 
                                  off_overall = (median(as.numeric(recent_home$off_overall)) + median(as.numeric(recent_away$def_overall)))/2 ,
-                                 def_overall = ( median(as.numeric(recent_home$def_overall)) + median(as.numeric(recent_away$off_overall)) )/2 , 
+                                 #def_overall = ( median(as.numeric(recent_home$def_overall)) + median(as.numeric(recent_away$off_overall)) )/2 , 
                                  opp_def_overall = (median(as.numeric(recent_home$def_overall)) + median(as.numeric(recent_away$off_overall)))/2 ,
-                                 opp_off_overall = ( median(as.numeric(recent_home$def_overall)) + median(as.numeric(recent_away$off_overall)) )/2,
+                                 #opp_off_overall = ( median(as.numeric(recent_home$def_overall)) + median(as.numeric(recent_away$off_overall)) )/2,
                                  sacks_allowed = (median(as.numeric(recent_home$sacks_allowed)) + median(as.numeric(recent_away$sacks)))/2,
-                                 sacks = (median(as.numeric(recent_home$sacks)) + median(as.numeric(recent_away$sacks_allowed)))/2 ,
+                                 #sacks = (median(as.numeric(recent_home$sacks)) + median(as.numeric(recent_away$sacks_allowed)))/2 ,
                                  net_passing_yards = (median(as.numeric(recent_home$net_passing_yards)) + median(as.numeric(recent_away$net_passing_yards_allowed)))/2 ,
                                  rushing_yards = (median(as.numeric(recent_home$rushing_yards)) + median(as.numeric(recent_away$rushing_yards_allowed)))/2 ,
 
                                  home_dummy = 1, 
                                  turnovers = (median(as.numeric(recent_home$turnovers)) + median(as.numeric(recent_away$takeaways)))/2,
-                                 opp_turnovers =  (median(as.numeric(recent_away$turnovers)) + median(as.numeric(recent_home$takeaways)))/2,
-                                 total_yards = (median(as.numeric(recent_home$total_yards)) + median(as.numeric(recent_away$total_yards_allowed)))/2, 
-                                 opp_total_yards = (median(as.numeric(recent_away$total_yards)) + median(as.numeric(recent_home$total_yards_allowed)))/2, 
+                                 #opp_turnovers =  (median(as.numeric(recent_away$turnovers)) + median(as.numeric(recent_home$takeaways)))/2,
+                                 #total_yards = (median(as.numeric(recent_home$total_yards)) + median(as.numeric(recent_away$total_yards_allowed)))/2, 
+                                 #opp_total_yards = (median(as.numeric(recent_away$total_yards)) + median(as.numeric(recent_home$total_yards_allowed)))/2, 
 
                                  off_success_rate = (median(as.numeric(recent_home$off_success_rate)) + median(as.numeric(recent_away$def_success_rate)))/2,
 
@@ -453,22 +453,22 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
       
       
    
-      new_data_away = data.frame(elo = recent_away$elo[nrow(recent_away)], 
+      new_data_away = data.frame(#elo = recent_away$elo[nrow(recent_away)], 
                                  opp_elo = recent_home$elo[nrow(recent_home)], 
                                  off_overall = (median(as.numeric(recent_away$off_overall)) + median(as.numeric(recent_home$def_overall)))/2 ,
-                                 def_overall = ( median(as.numeric(recent_away$def_overall)) + median(as.numeric(recent_home$off_overall)) )/2 , 
+                                 #def_overall = ( median(as.numeric(recent_away$def_overall)) + median(as.numeric(recent_home$off_overall)) )/2 , 
                                  opp_def_overall = (median(as.numeric(recent_away$def_overall)) + median(as.numeric(recent_home$off_overall)))/2 ,
-                                 opp_off_overall = ( median(as.numeric(recent_away$def_overall)) + median(as.numeric(recent_home$off_overall)) )/2,
+                                 #opp_off_overall = ( median(as.numeric(recent_away$def_overall)) + median(as.numeric(recent_home$off_overall)) )/2,
                                  sacks_allowed = (median(as.numeric(recent_away$sacks_allowed)) + median(as.numeric(recent_home$sacks)))/2,
-                                 sacks = (median(as.numeric(recent_away$sacks)) + median(as.numeric(recent_home$sacks_allowed)))/2 ,
+                                 #sacks = (median(as.numeric(recent_away$sacks)) + median(as.numeric(recent_home$sacks_allowed)))/2 ,
                                  net_passing_yards = (median(as.numeric(recent_away$net_passing_yards)) + median(as.numeric(recent_home$net_passing_yards_allowed)))/2 ,
                                  rushing_yards = (median(as.numeric(recent_away$rushing_yards)) + median(as.numeric(recent_home$rushing_yards_allowed)))/2 ,
 
                                  home_dummy = 0, 
                                  turnovers = (median(as.numeric(recent_away$turnovers)) + median(as.numeric(recent_home$takeaways)))/2,
-                                 opp_turnovers =  (median(as.numeric(recent_home$turnovers)) + median(as.numeric(recent_away$takeaways)))/2,
-                                 total_yards = (median(as.numeric(recent_away$total_yards)) + median(as.numeric(recent_home$total_yards_allowed)))/2, 
-                                 opp_total_yards = (median(as.numeric(recent_home$total_yards)) + median(as.numeric(recent_away$total_yards_allowed)))/2, 
+                                 #opp_turnovers =  (median(as.numeric(recent_home$turnovers)) + median(as.numeric(recent_away$takeaways)))/2,
+                                 #total_yards = (median(as.numeric(recent_away$total_yards)) + median(as.numeric(recent_home$total_yards_allowed)))/2, 
+                                 #opp_total_yards = (median(as.numeric(recent_home$total_yards)) + median(as.numeric(recent_away$total_yards_allowed)))/2, 
 
                                  off_success_rate = (median(as.numeric(recent_away$off_success_rate)) + median(as.numeric(recent_home$def_success_rate)))/2,
 
@@ -495,24 +495,57 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
       
       
       cols <-colnames(new_data_home)
+      #cols <- c('elo','opp_elo','off_overall','sacks_allowed', 'sacks' , 'net_passing_yards' , 'rushing_yards' , 'home_dummy' , 'turnovers' , 'off_success_rate' )
       
-      home$weights <- as.numeric(substr(as.character(home$season),4,4))
-      away$weights <- as.numeric(substr(as.character(away$season),4,4))
+      home$weights <- ifelse(as.numeric(substr(as.character(home$season),4,4))==2,as.numeric(substr(as.character(home$season),4,4)),as.numeric(substr(as.character(home$season),4,4))*2)
+      away$weights <- ifelse(as.numeric(substr(as.character(away$season),4,4))==2,as.numeric(substr(as.character(away$season),4,4)),as.numeric(substr(as.character(away$season),4,4))*2)
       
-      
-      ######### home #############
 
+      ######### home #############
+      
+      home<-home[which(home$opponent.x %in% fbs_teams$school),]
+      away<-away[which(away$opponent.x %in% fbs_teams$school),]
+      #home<-tibble(home)
+
+      # 
+      # for (col in cols){
+      #   home[col]<-as.numeric(unlist(home[col]))
+      # }
+      # 
+      # for (col in cols){
+      #   for (i in nrow(home)){
+      #     if(is.na(home[i,col])){home[i,col] <- sum(home[col],na.rm=TRUE)/nrow(na.omit(home[col]))}
+      #   }
+      # }
+      
       X = home[cols]
-      cols %in% colnames(home)
       Y = home['points']
+      
+
+
+    
+      # new_data_home<-new_data_home[cols]
+      # 
+      #                                                
+      # model_home = lm(points ~ elo+opp_elo+off_overall+
+      #                   sacks_allowed + sacks +net_passing_yards + rushing_yards +
+      #                   home_dummy + turnovers + off_success_rate 
+      #                  ,data = home ,weights = home$weights)
+      # summary(model_home)
+      # model_home$coefficients
+      # predict(model_home,new_data_home)
+      
+      
+     
+      
       for(i in 1:ncol(X)){
         X[,i] = as.numeric(X[,i])
       }
       
       
-      k=1
+     
       hp<-c()
-      for(k in 1:20){
+      for(k in 1:5){
         r = seq(1,nrow(X), 1)
         s = sample(r, 3 ,replace = F)
         train_x = data.matrix(X[-s,])
@@ -556,11 +589,11 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
         xgb_base <- 0
         xgb_base <- xgb.train(params = params,
                               data = xgb_train,
-                              nrounds =1000,
+                              nrounds =100,
                               print_every_n = 100,
-                              max_depth = 10,
+                              max_depth = 3,
                               eval_metric = "rmse",
-                              early_stopping_rounds = 100,
+                              early_stopping_rounds = 20,
                               trControl = xgb_trcontrol_1,
                               tuneGrid = xgb_grid_1,
                               watchlist = watchlist)
@@ -594,7 +627,7 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
       
       ap<-c()
       
-      for(k in 1:20){
+      for(k in 1:5){
         r = seq(1,nrow(X), 1)
         s = sample(r, 3 ,replace = F)
         train_x = data.matrix(X[-s,])
@@ -638,11 +671,11 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
         xgb_base <- 0
         xgb_base <- xgb.train(params = params,
                               data = xgb_train,
-                              nrounds =1000,
+                              nrounds =100,
                               print_every_n = 100,
-                              max_depth = 10,
+                              max_depth = 4,
                               eval_metric = "rmse",
-                              early_stopping_rounds = 100,
+                              early_stopping_rounds = 20,
                               trControl = xgb_trcontrol_1,
                               tuneGrid = xgb_grid_1,
                               watchlist = watchlist)
@@ -720,33 +753,33 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
 
 
 
-games<-cfbd_game_info(2023, week = 3)
-games <- subset(games,start_date < "2023-09-16")
-
-
-ht = games$home_team
-at = games$away_team
-
-y <- CFB_PROJECTIONS(ht=ht,at=at,input_week=3,input_season=2023,conferences = c(),previous_season=0,remove_fcs = TRUE)
-
-
-
-
-
-y
+# games<-cfbd_game_info(2023, week = 3)
+# games <- subset(games,start_date < "2023-09-16")
+# 
+# 
+# ht = games$home_team
+# at = games$away_team
+# 
+# y <- CFB_PROJECTIONS(ht=ht,at=at,input_week=3,input_season=2023,conferences = c(),previous_season=0,remove_fcs = TRUE)
+# 
 
 
 
+
+############################################### run model #################################
 
 df <- data.frame()
 
 for (conf in c("SEC","ACC","B1G","B12",'PAC')){
-y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=3,input_season=2023,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
+y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=4,input_season=2023,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
 df<-rbind(df,y,fill=TRUE)
 }
 
 
 p5<-df
+
+############################################### run model #################################
+
 #team = cfbd_team_info(year = 2023)
 
 #p5 <- data.frame()
@@ -763,31 +796,40 @@ p5<-df
 
 
 
+
+
+
+
+
+
 p5<-p5[-which(p5$ht == TRUE),]
+p5 = p5[!duplicated(p5$ht),]
 y<-p5
 
-team_plot_data = y
-team_plot_data$conference = 0
+# team_plot_data = y
+# team_plot_data$conference = 0
+# 
+# for(i in 1:nrow(team_plot_data)){
+#    team_plot_data$conference[i] = cfbd_stats_season_team(year = 2023, team = team_plot_data$ht[i])$conference
+# 
+# }
 
-for(i in 1:nrow(team_plot_data)){
-   team_plot_data$conference[i] = cfbd_stats_season_team(year = 2022, team = team_plot_data$ht[i])$conference
+# 
+# 
+# library(gt)
+# 
+#  team_info <- cfbd_team_info()
+#  team_info <- team_info %>%
+#        filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
 
-}
+# 
+# # ############################ gt table ####################################
+# 
+# 
+#  
+#  
 
-p5 = p5[!duplicated(p5$ht),]
-
-library(gt)
-
- team_info <- cfbd_team_info()
- team_info <- team_info %>%
-       filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
-
-
-# ############################ gt table ####################################
-
- team_plot_data$at_score[9]<-23.37
- 
- conf = "SEC"
+ conf = "Pac-12"
  temp <- subset(team_info,conference == conf)
 
  team_plot_data <- p5 %>%
@@ -795,7 +837,7 @@ library(gt)
 
 team_plot_data$conference <- conf
 
-
+#team_plot_data$at_score[9]<-17.78
 
 
  team_plot_data %>%

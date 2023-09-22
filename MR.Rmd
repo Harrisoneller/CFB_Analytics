@@ -37,7 +37,7 @@ CFB_MODEL <- dget("cfb_model_update.R")
 
 ```{r, include=F}
 input_season = 2023
-week = 2
+week = 4
 include_scarlett = 'yes'
 
 df = data.frame()
@@ -54,8 +54,8 @@ fbs_teams = subset(fbs_teams, classification == 'fbs')
 # ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # home_team_filter = ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # at = cfbd_game_info(2022, week = week, conference = conference)$away_team[1]
-ht=c('Alabama')
-at=c("Texas")
+ht=c('Penn State')
+at=c("Iowa")
 ```
 
 ```{r, include=F}
@@ -143,7 +143,7 @@ bet %>%
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
 if (include_scarlett == 'yes' || include_scarlett == 'y' ) {
-team_plot_data <- invisible(CFB_MODEL(ht=ht,at=at,input_week=week,input_season=input_season,conferences = c(),previous_season=1,remove_fcs = TRUE))
+team_plot_data <- invisible(CFB_MODEL(ht=ht,at=at,input_week=week,input_season=input_season,conferences = c(),previous_season=0,remove_fcs = TRUE))
 
 home_team = ht
 #y=team_plot_data
