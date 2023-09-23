@@ -20,7 +20,7 @@ library(caret)
 library(car)
 library(tidyverse)
 #setwd("C:/Users/harri/OneDrive/Desktop/LTB/CFB Analysis")
-setwd("C:/Users/Harrison Eller/CFB_Analytics")
+#setwd("C:/Users/Harrison Eller/CFB_Analytics")
 
 
 
@@ -768,15 +768,15 @@ CFB_PROJECTIONS <- function(ht=c(),at=c(),input_week,input_season,conferences = 
 
 ############################################### run model #################################
 
-df <- data.frame()
-
-for (conf in c("SEC","ACC","B1G","B12",'PAC')){
-y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=4,input_season=2023,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
-df<-rbind(df,y,fill=TRUE)
-}
-
-
-p5<-df
+# df <- data.frame()
+# 
+# for (conf in c("SEC","ACC","B1G","B12",'PAC')){
+# y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=4,input_season=2023,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
+# df<-rbind(df,y,fill=TRUE)
+# }
+# 
+# 
+# p5<-df
 
 ############################################### run model #################################
 
@@ -801,10 +801,10 @@ p5<-df
 
 
 
-
-p5<-p5[-which(p5$ht == TRUE),]
-p5 = p5[!duplicated(p5$ht),]
-y<-p5
+# 
+# p5<-p5[-which(p5$ht == TRUE),]
+# p5 = p5[!duplicated(p5$ht),]
+# y<-p5
 
 # team_plot_data = y
 # team_plot_data$conference = 0
@@ -828,45 +828,45 @@ y<-p5
 # 
 #  
 #  
-
- conf = "Pac-12"
- temp <- subset(team_info,conference == conf)
-
- team_plot_data <- p5 %>%
-         filter(ht %in% temp$school | at %in% temp$school)
-
-team_plot_data$conference <- conf
-
-#team_plot_data$at_score[9]<-17.78
-
-
- team_plot_data %>%
-   transmute(Conference = conference, Home_Team = ht,
-             Home_Score = round(ht_score,2),
-             Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
-   arrange(desc(Conference)) %>%
-   gt() %>%
-   gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
-   gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
-   cols_align(
-     align = c('center'),
-     columns = everything()
-   ) %>%
-   tab_header(
-     title = md("**Scarlett Score Predictions**"),
-     subtitle = md("Harrison Eller")
-   ) %>%
-   fmt_number(
-     columns = c("Home_Score", "Away_Score")
-   ) %>%
-   tab_style(
-     style = list(
-       cell_text(weight = "bold")
-     ),
-     locations = cells_body(
-       columns = c("Home_Score", "Away_Score")
-     )
-   )
+# 
+#  conf = "Pac-12"
+#  temp <- subset(team_info,conference == conf)
+# 
+#  team_plot_data <- p5 %>%
+#          filter(ht %in% temp$school | at %in% temp$school)
+# 
+# team_plot_data$conference <- conf
+# 
+# #team_plot_data$at_score[9]<-17.78
+# 
+# 
+#  team_plot_data %>%
+#    transmute(Conference = conference, Home_Team = ht,
+#              Home_Score = round(ht_score,2),
+#              Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
+#    arrange(desc(Conference)) %>%
+#    gt() %>%
+#    gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
+#    gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
+#    cols_align(
+#      align = c('center'),
+#      columns = everything()
+#    ) %>%
+#    tab_header(
+#      title = md("**Scarlett Score Predictions**"),
+#      subtitle = md("Harrison Eller")
+#    ) %>%
+#    fmt_number(
+#      columns = c("Home_Score", "Away_Score")
+#    ) %>%
+#    tab_style(
+#      style = list(
+#        cell_text(weight = "bold")
+#      ),
+#      locations = cells_body(
+#        columns = c("Home_Score", "Away_Score")
+#      )
+#   )
 
 
 

@@ -38,7 +38,7 @@ CFB_MODEL <- dget("cfb_model_update.R")
 ```{r, include=F}
 input_season = 2023
 week = 4
-include_scarlett = 'yes'
+include_scarlett = 'no'
 
 df = data.frame()
 #conference = c('SEC')
@@ -54,8 +54,8 @@ fbs_teams = subset(fbs_teams, classification == 'fbs')
 # ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # home_team_filter = ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # at = cfbd_game_info(2022, week = week, conference = conference)$away_team[1]
-ht=c('Penn State')
-at=c("Iowa")
+ht=c('Alabama')
+at=c("Ole Miss")
 ```
 
 ```{r, include=F}
@@ -70,6 +70,8 @@ TEAMS$Passing_YPA <- TEAMS$net_pass_yds / TEAMS$pass_atts
 TEAMS$Passing_YPC <- TEAMS$net_pass_yds / TEAMS$pass_comps
 TEAMS$Rushing_YPA <- TEAMS$rush_yds / TEAMS$rush_atts
 TEAMS$third_down_conv_rate<- TEAMS$third_down_convs / TEAMS$third_downs
+
+
 ```
 
 
@@ -419,6 +421,15 @@ gt(rowname_col = c("Team")) %>%
 #     )
 # 
 
+c<-c('off_success_rate', 'off_explosiveness','off_power_success','off_passing_plays_success_rate', 'off_passing_plays_explosiveness', 'off_rushing_plays_success_rate', 'off_rushing_plays_explosiveness')
+
+
+
+
+
+for (col in c){
+  TEAMS[col]<-rank(-TEAMS[col])
+}
 
 
 off_ratings <- TEAMS %>% 
@@ -438,15 +449,14 @@ gt(rowname_col = c("Team")) %>%
    off_passing_plays_explosiveness = md("**Pass EXP**"),
    off_rushing_plays_success_rate = md("**Rush SR**"),
    off_rushing_plays_explosiveness = md("**Rush EXP**"),
-  ) %>% 
-        fmt_number(
+  ) %>%  fmt_number(
         columns = c(off_success_rate, off_explosiveness, off_power_success,off_passing_plays_success_rate,off_passing_plays_explosiveness,off_rushing_plays_success_rate,off_rushing_plays_explosiveness),
         decimals = 2
     ) %>% 
     data_color(
         columns = c(off_success_rate),
         colors = scales::col_numeric(
-            palette = c('red','white','green'),
+            palette = c('green','white','red'),
             domain = c(min(TEAMS$off_success_rate,na.rm = TRUE),max(TEAMS$off_success_rate,na.rm = TRUE)
             )
         )
@@ -454,7 +464,7 @@ gt(rowname_col = c("Team")) %>%
         data_color(
         columns = c(off_explosiveness),
         colors = scales::col_numeric(
-            palette = c('red','white','green'),
+            palette = c('green','white','red'),
             domain = c(min(TEAMS$off_explosiveness,na.rm = TRUE),max(TEAMS$off_explosiveness,na.rm = TRUE)
             )
         )
@@ -462,7 +472,7 @@ gt(rowname_col = c("Team")) %>%
         data_color(
         columns = c(off_power_success),
         colors = scales::col_numeric(
-            palette = c('red','white','green'),
+            palette = c('green','white','red'),
             domain = c(min(TEAMS$off_power_success,na.rm = TRUE),max(TEAMS$off_power_success,na.rm = TRUE)
             )
         )
@@ -470,7 +480,7 @@ gt(rowname_col = c("Team")) %>%
         data_color(
         columns = c(off_passing_plays_success_rate),
         colors = scales::col_numeric(
-            palette = c('red','white','green'),
+            palette = c('green','white','red'),
             domain = c(min(TEAMS$off_passing_plays_success_rate,na.rm = TRUE),max(TEAMS$off_passing_plays_success_rate,na.rm = TRUE)
             )
         )
@@ -478,7 +488,7 @@ gt(rowname_col = c("Team")) %>%
         data_color(
         columns = c(off_passing_plays_explosiveness),
         colors = scales::col_numeric(
-            palette = c('red','white','green'),
+            palette = c('green','white','red'),
             domain = c(min(TEAMS$off_passing_plays_explosiveness,na.rm = TRUE),max(TEAMS$off_passing_plays_explosiveness,na.rm = TRUE)
             )
         )
@@ -486,7 +496,7 @@ gt(rowname_col = c("Team")) %>%
     data_color(
         columns = c(off_rushing_plays_success_rate),
         colors = scales::col_numeric(
-            palette = c('red','white','green'),
+            palette =  c('green','white','red'),
             domain = c(min(TEAMS$off_rushing_plays_success_rate,na.rm = TRUE),max(TEAMS$off_rushing_plays_success_rate,na.rm = TRUE)
             )
         )
@@ -494,7 +504,7 @@ gt(rowname_col = c("Team")) %>%
     data_color(
         columns = c(off_rushing_plays_explosiveness),
         colors = scales::col_numeric(
-            palette = c('red','white','green'),
+            palette = c('green','white','red'),
             domain = c(min(TEAMS$off_rushing_plays_explosiveness,na.rm = TRUE),max(TEAMS$off_rushing_plays_explosiveness,na.rm = TRUE)
             )
         )
@@ -517,6 +527,84 @@ gt(rowname_col = c("Team")) %>%
 )
 
 
+#         fmt_number(
+#         columns = c(off_success_rate, off_explosiveness, off_power_success,off_passing_plays_success_rate,off_passing_plays_explosiveness,off_rushing_plays_success_rate,off_rushing_plays_explosiveness),
+#         decimals = 2
+#     ) %>% 
+#     data_color(
+#         columns = c(off_success_rate),
+#         colors = scales::col_numeric(
+#             palette = c('red','white','green'),
+#             domain = c(min(TEAMS$off_success_rate,na.rm = TRUE),max(TEAMS$off_success_rate,na.rm = TRUE)
+#             )
+#         )
+#     ) %>% 
+#         data_color(
+#         columns = c(off_explosiveness),
+#         colors = scales::col_numeric(
+#             palette = c('red','white','green'),
+#             domain = c(min(TEAMS$off_explosiveness,na.rm = TRUE),max(TEAMS$off_explosiveness,na.rm = TRUE)
+#             )
+#         )
+#     )  %>% 
+#         data_color(
+#         columns = c(off_power_success),
+#         colors = scales::col_numeric(
+#             palette = c('red','white','green'),
+#             domain = c(min(TEAMS$off_power_success,na.rm = TRUE),max(TEAMS$off_power_success,na.rm = TRUE)
+#             )
+#         )
+#     ) %>% 
+#         data_color(
+#         columns = c(off_passing_plays_success_rate),
+#         colors = scales::col_numeric(
+#             palette = c('red','white','green'),
+#             domain = c(min(TEAMS$off_passing_plays_success_rate,na.rm = TRUE),max(TEAMS$off_passing_plays_success_rate,na.rm = TRUE)
+#             )
+#         )
+#     ) %>% 
+#         data_color(
+#         columns = c(off_passing_plays_explosiveness),
+#         colors = scales::col_numeric(
+#             palette = c('red','white','green'),
+#             domain = c(min(TEAMS$off_passing_plays_explosiveness,na.rm = TRUE),max(TEAMS$off_passing_plays_explosiveness,na.rm = TRUE)
+#             )
+#         )
+#     ) %>% 
+#     data_color(
+#         columns = c(off_rushing_plays_success_rate),
+#         colors = scales::col_numeric(
+#             palette = c('red','white','green'),
+#             domain = c(min(TEAMS$off_rushing_plays_success_rate,na.rm = TRUE),max(TEAMS$off_rushing_plays_success_rate,na.rm = TRUE)
+#             )
+#         )
+#     ) %>% 
+#     data_color(
+#         columns = c(off_rushing_plays_explosiveness),
+#         colors = scales::col_numeric(
+#             palette = c('red','white','green'),
+#             domain = c(min(TEAMS$off_rushing_plays_explosiveness,na.rm = TRUE),max(TEAMS$off_rushing_plays_explosiveness,na.rm = TRUE)
+#             )
+#         )
+#     ) %>% 
+#     tab_header(
+#     title = md("**Offensive Ratings Comparison**"),
+#     subtitle = md("2022 Season")
+#     )  %>% 
+#     tab_footnote(
+#     footnote = "SR = Success Rate",
+#     locations = cells_column_labels(
+#       columns = c(off_passing_plays_success_rate,off_rushing_plays_success_rate)
+#     )
+# )%>% 
+#     tab_footnote(
+#     footnote = "EXP = Explosiveness",
+#     locations = cells_column_labels(
+#       columns = c(off_passing_plays_explosiveness,off_rushing_plays_explosiveness)
+#     )
+# )
+# 
+
 
 
 
@@ -525,6 +613,17 @@ gt(rowname_col = c("Team")) %>%
 
 ```{r, echo=F}
 ## Defesnive Breakdown
+
+d<-c('def_success_rate', 'def_explosiveness','def_power_success','def_passing_plays_success_rate', 'def_passing_plays_explosiveness', 'def_rushing_plays_success_rate', 'def_rushing_plays_explosiveness')
+
+
+
+
+
+for (col in d){
+  TEAMS[col]<-rank(TEAMS[col])
+}
+
 def_ratings <- TEAMS %>% 
     filter(team %in% c(ht,at))
 
