@@ -37,7 +37,7 @@ CFB_MODEL <- dget("cfb_model_update.R")
 
 ```{r, include=F}
 input_season = 2023
-week = 4
+week = 8
 include_scarlett = 'no'
 
 df = data.frame()
@@ -54,8 +54,8 @@ fbs_teams = subset(fbs_teams, classification == 'fbs')
 # ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # home_team_filter = ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # at = cfbd_game_info(2022, week = week, conference = conference)$away_team[1]
-ht=c('Alabama')
-at=c("Ole Miss")
+ht=c('Kentucky')
+at=c("Tennessee")
 ```
 
 ```{r, include=F}
@@ -81,62 +81,66 @@ TEAMS$third_down_conv_rate<- TEAMS$third_down_convs / TEAMS$third_downs
 ```{r, echo=F}
 # Betting information 
 # Betting information 
-lines <- cfbd_betting_lines(year = 2023, week = week, team = ht)
 
-line <- subset(lines,provider == "DraftKings")
-if (nrow(line) < 1 | is.na(line$over_under[1]) | is.na(line$spread[1]) ){line <- subset(lines,provider == "Bovada")}
-# bet$home_score <- ifelse(as.numeric(bet$spread) < 0, as.numeric(bet$over_under) + as.numeric(bet$spread),  as.numeric(bet$over_under) - as.numeric(bet$spread))
+
 # 
-# bet$away_score <- as.numeric(bet$over_under) - as.numeric(bet$home_score)
-
-
-
-bet <- data.frame(home_score=0,away_score=0,total=0,home_team=0,away_team=0,spread=0, home_conference=0)
-bet$total <- as.numeric(line$over_under[1])
-bet$spread <- as.numeric(line$spread[1])
-bet$home_score <- ifelse(bet$spread  < 0, (bet$total/2)-(bet$spread/2), (bet$total/2)+(bet$spread/2))
-bet$away_score <- bet$total - bet$home_score 
-
-bet$home_team <- ht
-bet$away_team <- at
-
-
-
-
-bet %>% 
-  transmute(Game_Total = total,
-      Home_Team = home_team,
-            Home_Score = home_score, Away_Score= away_score,
-            Away_Team = away_team, Home_Spread = spread) %>% 
-  gt() %>%
-  #gt_fmt_cfb_logo(columns = c(Conference)) %>% 
-  gt_fmt_cfb_wordmark(columns = c('Home_Team','Away_Team')) %>% 
-  cols_align(
-    align = c('center'),
-    columns = everything()
-  ) %>%   cols_label(
-    Game_Total = md('**O/U**'),
-    Home_Team = md('**Home**'),
-    Home_Score = md('**Home Score**'), 
-    Away_Score= md('**Away Score**'),
-    Away_Team = md('**Away**'),
-    Home_Spread = md('**Home Spread**')
-  ) %>% 
-  tab_header(
-    title = md("**Vegas Lines**"),
-    subtitle = md("Harrison Eller")
-  ) %>% 
-  fmt_number(
-    columns = c(Home_Score, Away_Score, Game_Total, Home_Spread)
-  ) %>%
-  tab_style(
-    style = list(
-      cell_text(weight = "bold")
-    ),
-    locations = cells_body(
-      columns = c(Home_Score, Away_Score, Game_Total,Home_Spread)
-    )
-  )
+# 
+# lines <- cfbd_betting_lines(year = 2023, week = week, team = ht)
+# 
+# line <- subset(lines,provider == "DraftKings")
+# if (nrow(line) < 1 | is.na(line$over_under[1]) | is.na(line$spread[1]) ){line <- subset(lines,provider == "Bovada")}
+# # bet$home_score <- ifelse(as.numeric(bet$spread) < 0, as.numeric(bet$over_under) + as.numeric(bet$spread),  as.numeric(bet$over_under) - as.numeric(bet$spread))
+# # 
+# # bet$away_score <- as.numeric(bet$over_under) - as.numeric(bet$home_score)
+# 
+# 
+# 
+# bet <- data.frame(home_score=0,away_score=0,total=0,home_team=0,away_team=0,spread=0, home_conference=0)
+# bet$total <- as.numeric(line$over_under[1])
+# bet$spread <- as.numeric(line$spread[1])
+# bet$home_score <- ifelse(bet$spread  < 0, (bet$total/2)-(bet$spread/2), (bet$total/2)+(bet$spread/2))
+# bet$away_score <- bet$total - bet$home_score 
+# 
+# bet$home_team <- ht
+# bet$away_team <- at
+# 
+# 
+# 
+# 
+# bet %>% 
+#   transmute(Game_Total = total,
+#       Home_Team = home_team,
+#             Home_Score = home_score, Away_Score= away_score,
+#             Away_Team = away_team, Home_Spread = spread) %>% 
+#   gt() %>%
+#   #gt_fmt_cfb_logo(columns = c(Conference)) %>% 
+#   gt_fmt_cfb_wordmark(columns = c('Home_Team','Away_Team')) %>% 
+#   cols_align(
+#     align = c('center'),
+#     columns = everything()
+#   ) %>%   cols_label(
+#     Game_Total = md('**O/U**'),
+#     Home_Team = md('**Home**'),
+#     Home_Score = md('**Home Score**'), 
+#     Away_Score= md('**Away Score**'),
+#     Away_Team = md('**Away**'),
+#     Home_Spread = md('**Home Spread**')
+#   ) %>% 
+#   tab_header(
+#     title = md("**Vegas Lines**"),
+#     subtitle = md("Harrison Eller")
+#   ) %>% 
+#   fmt_number(
+#     columns = c(Home_Score, Away_Score, Game_Total, Home_Spread)
+#   ) %>%
+#   tab_style(
+#     style = list(
+#       cell_text(weight = "bold")
+#     ),
+#     locations = cells_body(
+#       columns = c(Home_Score, Away_Score, Game_Total,Home_Spread)
+#     )
+#   )
 ```
 
 ## Model Output
@@ -376,7 +380,7 @@ gt(rowname_col = c("Team")) %>%
     ) %>% 
     tab_header(
     title = md("**Statistical Comparison**"),
-    subtitle = md("2022 Season")
+    subtitle = md("2023 Season")
     ) %>% 
     tab_footnote(
     footnote = "YPG = Yards Per Game",
@@ -511,7 +515,7 @@ gt(rowname_col = c("Team")) %>%
     ) %>% 
     tab_header(
     title = md("**Offensive Ratings Comparison**"),
-    subtitle = md("2022 Season")
+    subtitle = md("2023 Season")
     )  %>% 
     tab_footnote(
     footnote = "SR = Success Rate",
@@ -704,7 +708,7 @@ gt(rowname_col = c("Team")) %>%
     ) %>% 
     tab_header(
     title = md("**Defensive Ratings Comparison**"),
-    subtitle = md("2022 Season")
+    subtitle = md("2023 Season")
     )  %>% 
     tab_footnote(
     footnote = "SR = Success Rate",
@@ -729,33 +733,33 @@ gt(rowname_col = c("Team")) %>%
 
 ```{r pressure, echo=FALSE, fig.align='center', message=FALSE, warning=FALSE}
 # gather data 
-pbp <- cfbfastR::load_cfb_pbp(input_season) %>% 
-  filter(week == week)
-
-team_info <- cfbfastR::cfbd_team_info()
-team_info <- team_info %>% 
-  select(team = school,conference,mascot) %>% 
-  filter(conference %in% c("Pac-12","ACC","SEC","Big Ten","Big 12"))
-
-
-team_plot_data <- pbp %>% 
-  group_by(team = offense_play) %>% 
-  summarize(rush_epa = mean(if_else(rush == 1,EPA,NA_real_),na.rm = TRUE),
-            n_rush = sum(rush),
-            pass_epa = mean(if_else(pass == 1,EPA,NA_real_),na.rm = TRUE),
-            n_pass = sum(pass)) %>% 
-  filter(team %in% team_info$team) %>% 
-  left_join(team_info,by = "team")
-
-
-team_plot_data %>% 
-  mutate(color = if_else(team %in% c(ht,at),NA_character_,"b/w"),
-         alpha = if_else(team %in% c(ht,at),1,.6)) %>% 
-  ggplot(aes(x = pass_epa, y = rush_epa)) +
-  geom_median_lines(aes(v_var = pass_epa, h_var = rush_epa)) +
-  geom_cfb_logos(aes(team = team, alpha = alpha, color = color), width = 0.075) +
-  scale_alpha_identity() +
-  scale_color_identity() +
-  labs(x = "EPA per Pass",y = "EPA per Rush") +
-  theme_bw()
+# pbp <- cfbfastR::load_cfb_pbp(input_season) %>% 
+#   filter(week == week)
+# 
+# team_info <- cfbfastR::cfbd_team_info()
+# team_info <- team_info %>% 
+#   select(team = school,conference,mascot) %>% 
+#   filter(conference %in% c("Pac-12","ACC","SEC","Big Ten","Big 12"))
+# 
+# 
+# team_plot_data <- pbp %>% 
+#   group_by(team = offense_play) %>% 
+#   summarize(rush_epa = mean(if_else(rush == 1,EPA,NA_real_),na.rm = TRUE),
+#             n_rush = sum(rush),
+#             pass_epa = mean(if_else(pass == 1,EPA,NA_real_),na.rm = TRUE),
+#             n_pass = sum(pass)) %>% 
+#   filter(team %in% team_info$team) %>% 
+#   left_join(team_info,by = "team")
+# 
+# 
+# team_plot_data %>% 
+#   mutate(color = if_else(team %in% c(ht,at),NA_character_,"b/w"),
+#          alpha = if_else(team %in% c(ht,at),1,.6)) %>% 
+#   ggplot(aes(x = pass_epa, y = rush_epa)) +
+#   geom_median_lines(aes(v_var = pass_epa, h_var = rush_epa)) +
+#   geom_cfb_logos(aes(team = team, alpha = alpha, color = color), width = 0.075) +
+#   scale_alpha_identity() +
+#   scale_color_identity() +
+#   labs(x = "EPA per Pass",y = "EPA per Rush") +
+#   theme_bw()
 ```
