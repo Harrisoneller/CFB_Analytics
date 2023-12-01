@@ -954,23 +954,24 @@ w<-8
 
 df<-data.frame()
 for (j in 2022:2023){
-  if(j==2022){week <- 15}else{week <- w}
-for (i in 1:week){
-  print(j)
-  print(i)
-  pbp <- cfbd_pbp_data(year = j,week = i,epa_wpa = TRUE) 
-  df<-rbind(df,pbp,fill=T)
-}
+
+  pbp <- load_cfb_pbp(seasons = j)
+  df < -rbind(df,pbp,fill=T)
 }
 
 
 
-pbp_full <- read.csv("play_by_play_W8.csv")
+
+
+pbp_full <- df
 
 
 
 
-############################################### run model #################################
+
+
+#####
+########################################## run model #################################
 
 games <- data.frame()
 # 

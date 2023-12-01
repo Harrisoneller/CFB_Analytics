@@ -702,7 +702,7 @@ j=1
         
         # set up the cross-validated hyper-parameter search
         xgb_grid_1 = expand.grid(
-          nrounds = 1000,
+          nrounds = 100,
           eta = c(0.01, 0.001, 0.0001),
           max_depth = c(2, 4, 6, 8, 10),
           gamma = 1
@@ -710,7 +710,7 @@ j=1
         # pack the training control parameters
         xgb_trcontrol_1 = trainControl(
           method = "cv",
-          number = 5,
+          number = 3,
           verboseIter = TRUE,
           returnData = FALSE,
           returnResamp = "all",                                                        # save losses across all models
@@ -737,7 +737,7 @@ j=1
                               nrounds =100,
                               print_every_n = 100,
                               max_depth = 3,
-                              eval_metric = "rmse",
+                              eval_metric = "mae",
                               early_stopping_rounds = 20,
                               trControl = xgb_trcontrol_1,
                               tuneGrid = xgb_grid_1,
@@ -784,7 +784,7 @@ j=1
         
         # set up the cross-validated hyper-parameter search
         xgb_grid_1 = expand.grid(
-          nrounds = 1000,
+          nrounds = 100,
           eta = c(0.01, 0.001, 0.0001),
           max_depth = c(2, 4, 6, 8, 10),
           gamma = 1
@@ -792,7 +792,7 @@ j=1
         # pack the training control parameters
         xgb_trcontrol_1 = trainControl(
           method = "cv",
-          number = 5,
+          number = 3,
           verboseIter = TRUE,
           returnData = FALSE,
           returnResamp = "all",                                                        # save losses across all models
@@ -819,7 +819,7 @@ j=1
                               nrounds =100,
                               print_every_n = 10,
                               max_depth = 4,
-                              eval_metric = "rmse",
+                              eval_metric = "mae",
                               early_stopping_rounds = 20,
                               trControl = xgb_trcontrol_1,
                               tuneGrid = xgb_grid_1,
@@ -909,20 +909,28 @@ j=1
 
 
 
-sample <- CFB_PROJECTIONS(ht=c("Charlotte"),at=c("Florida Atlantic"),input_week=9,input_season=2023,include_vegas=1,conferences = c(),previous_season=0,remove_fcs = FALSE)
-
-############################################### run model #################################
-
+# sample <- CFB_PROJECTIONS(ht=c("Charlotte"),at=c("Florida Atlantic"),input_week=9,input_season=2023,include_vegas=1,conferences = c(),previous_season=0,remove_fcs = FALSE)
+# 
+# ############################################### run model #################################
+# 
 df <- data.frame()
 
 for (conf in c("SEC","ACC","B1G","B12",'PAC')){
-y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=9,input_season=2023,include_vegas=1,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
+y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=14,input_season=2023,include_vegas=1,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
 df<-rbind(df,y,fill=TRUE)
 }
 
+df
 
+for (conf in c("AAC","CUSA","MAC","MWC","SBC")){
+  y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=14,input_season=2023,include_vegas=1,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
+  df<-rbind(df,y,fill=TRUE)
+}
 
-p5<-df
+#write.csv(df,'cfP_conf_champ.csv')
+
+# 
+# p5<-df
 
 ############################################### run model #################################
 
@@ -948,73 +956,76 @@ p5<-df
 
 # 
 # 
-p5<-p5[-which(p5$ht == TRUE),]
-p5 = p5[!duplicated(p5$ht),]
-y<-p5
+# p5<-p5[-which(p5$ht == TRUE),]
+# p5 = p5[!duplicated(p5$ht),]
+# y<-p5
 
 # team_plot_data = y
 # team_plot_data$conference = 0
 #
-# for(i in 1:nrow(team_plot_data)){
-#    team_plot_data$conference[i] = cfbd_stats_season_team(year = 2023, team = team_plot_data$ht[i])$conference
-#
-# }
+ for(i in 1:nrow(team_plot_data)){
+    team_plot_data$conference[i] = cfbd_stats_season_team(year = 2023, team = team_plot_data$ht[i])$conference
+
+ }
 
 #
 #
 # 
 #
 # team_info <- cfbd_team_info()
-team_info <- team_info %>%
-        filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
+# team_info <- team_info %>% filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
 
 #
 # # ############################ gt table ####################################
 #
 #
 
+# 
+#
+
+#p5<- read.csv("C:\\Users\\Harrison Eller\\CFB_Analytics\\model_proj.csv")
 
 
- conf = "CUSA"
- temp <- subset(team_info,conference == conf)
+  conf = "SEC"
+  temp <- subset(team_info,conference == conf)
 
- team_plot_data <- p5 %>%
-         filter(ht %in% temp$school | at %in% temp$school)
+  team_plot_data <- p5 %>%
+          filter(ht %in% temp$school | at %in% temp$school)
 
-team_plot_data$conference <- conf
+  team_plot_data$conference <- conf
+  team_plot_data$ht_score[10]<-30.37
+  team_plot_data$at_score[10]<-21.31
+  #team_plot_data$value_side[1]<-"Iowa"
 
-#team_plot_data$at_score[2]<-28.41
-#team_plot_data$value_side[6]<-"TCU"
-
- team_plot_data %>%
-   transmute(Conference = conference, Home_Team = ht,
-             Home_Score = round(ht_score,2),
-             Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
-   arrange(desc(Conference)) %>%
-   gt() %>%
-   gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
-   gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
-   cols_align(
-     align = c('center'),
-     columns = everything()
-   ) %>%
-   tab_header(
-     title = md("**Scarlett Score Predictions**"),
-     subtitle = md("Harrison Eller")
-   ) %>%
-   fmt_number(
-     columns = c("Home_Score", "Away_Score")
-   ) %>%
-   tab_style(
-     style = list(
-       cell_text(weight = "bold")
-     ),
-     locations = cells_body(
-       columns = c("Home_Score", "Away_Score")
-     )
-)
-
-
+  team_plot_data %>%
+    transmute(Conference = conference, Home_Team = ht,
+              Home_Score = round(ht_score,2),
+              Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
+    arrange(desc(Conference)) %>%
+    gt() %>%
+    gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
+    gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
+    cols_align(
+      align = c('center'),
+      columns = everything()
+    ) %>%
+    tab_header(
+      title = md("**Scarlett Score Predictions**"),
+      subtitle = md("Harrison Eller")
+    ) %>%
+    fmt_number(
+      columns = c("Home_Score", "Away_Score")
+    ) %>%
+    tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c("Home_Score", "Away_Score")
+      )
+ )
+#
+#
 
 
 
