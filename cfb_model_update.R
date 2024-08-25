@@ -2,7 +2,7 @@ library(dplyr)
 library(readr)
 library(cfbfastR)
 #remotes::install_github(repo = "sportsdataverse/cfbfastR")
-remotes::install_github(repo = "sportsdataverse/cfbplotR")
+#remotes::install_github(repo = "sportsdataverse/cfbplotR")
 library(cfbplotR)
 Sys.setenv(CFBD_API_KEY = "x1C/67YV6Sy98uENGd+tSvJSr82NfDxHFTmWk4QB5wGl2qxogM53QKLB5T4l6kPn")
 #Sys.setenv(CFBD_API_KEY = "OMFtwopAS5WexLsewwy5BKQsUIzguwFqGz6KkjiUc6zcpKNYphzld/71fWW7pt8j")
@@ -896,7 +896,6 @@ j=1
 
 
 
-
 # games<-cfbd_game_info(2023, week = 3)
 # games <- subset(games,start_date < "2023-09-16")
 # 
@@ -904,128 +903,130 @@ j=1
 # ht = games$home_team
 # at = games$away_team
 # 
-# y <- CFB_PROJECTIONS(ht=ht,at=at,input_week=3,input_season=2023,conferences = c(),previous_season=0,remove_fcs = TRUE)
+# ht<-c()
+# at<-c()
+# y <- CFB_PROJECTIONS(ht=ht,at=at,input_week=1,input_season=2024,conferences = c("SEC"),previous_season=0,remove_fcs = TRUE)
+# # 
+
 # 
-
-
-
-# sample <- CFB_PROJECTIONS(ht=c("Charlotte"),at=c("Florida Atlantic"),input_week=9,input_season=2023,include_vegas=1,conferences = c(),previous_season=0,remove_fcs = FALSE)
+# 
+# sample <- CFB_PROJECTIONS(ht=c("Michigan"),at=c("Washington"),input_week=15,input_season=2023,include_vegas=0,conferences = c(),previous_season=0,remove_fcs = FALSE)
+# # 
+# # ############################################### run model #################################
+# # 
+# df <- data.frame()
+# 
+# for (conf in c("SEC","ACC","B1G","B12",'PAC')){
+# y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=14,input_season=2023,include_vegas=1,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
+# df<-rbind(df,y,fill=TRUE)
+# }
+# 
+# df
+# 
+# for (conf in c("AAC","CUSA","MAC","MWC","SBC")){
+#   y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=14,input_season=2023,include_vegas=1,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
+#   df<-rbind(df,y,fill=TRUE)
+# }
+# 
+# #write.csv(df,'cfP_conf_champ.csv')
+# 
+# # 
+# # p5<-df
 # 
 # ############################################### run model #################################
 # 
-df <- data.frame()
-
-for (conf in c("SEC","ACC","B1G","B12",'PAC')){
-y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=14,input_season=2023,include_vegas=1,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
-df<-rbind(df,y,fill=TRUE)
-}
-
-df
-
-for (conf in c("AAC","CUSA","MAC","MWC","SBC")){
-  y <- CFB_PROJECTIONS(ht=c(),at=c(),input_week=14,input_season=2023,include_vegas=1,conferences = c(conf),previous_season=0,remove_fcs = TRUE)
-  df<-rbind(df,y,fill=TRUE)
-}
-
-#write.csv(df,'cfP_conf_champ.csv')
-
-# 
-# p5<-df
-
-############################################### run model #################################
-
-# #team = cfbd_team_info(year = 2023)
-# 
-# #p5 <- data.frame()
-# #conferences<-c("ACC","SEC","B12","B1G","PAC")
-# 
-# # ht = c('Alabama','Colorado','Iowa State','Miami','Oklahoma','NC State')#,"Jacksonville State")
-# # at = c('Texas','Nebraska','Iowa','Texas A&M','SMU','Notre Dame')
-# # df <- CFB_MODEL(ht=ht,at=at,input_week=2,input_season=2023,conferences = c(),previous_season=1,remove_fcs = TRUE)
-# 
-
-
-
-
-
-
-
-
-
-
-
+# # #team = cfbd_team_info(year = 2023)
+# # 
+# # #p5 <- data.frame()
+# # #conferences<-c("ACC","SEC","B12","B1G","PAC")
+# # 
+# # # ht = c('Alabama','Colorado','Iowa State','Miami','Oklahoma','NC State')#,"Jacksonville State")
+# # # at = c('Texas','Nebraska','Iowa','Texas A&M','SMU','Notre Dame')
+# # # df <- CFB_MODEL(ht=ht,at=at,input_week=2,input_season=2023,conferences = c(),previous_season=1,remove_fcs = TRUE)
+# # 
 # 
 # 
-# p5<-p5[-which(p5$ht == TRUE),]
-# p5 = p5[!duplicated(p5$ht),]
-# y<-p5
-
-# team_plot_data = y
-# team_plot_data$conference = 0
-#
- for(i in 1:nrow(team_plot_data)){
-    team_plot_data$conference[i] = cfbd_stats_season_team(year = 2023, team = team_plot_data$ht[i])$conference
-
- }
-
-#
-#
 # 
-#
-# team_info <- cfbd_team_info()
-# team_info <- team_info %>% filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
-
-#
-# # ############################ gt table ####################################
-#
-#
-
 # 
-#
-
-#p5<- read.csv("C:\\Users\\Harrison Eller\\CFB_Analytics\\model_proj.csv")
-
-
-  conf = "SEC"
-  temp <- subset(team_info,conference == conf)
-
-  team_plot_data <- p5 %>%
-          filter(ht %in% temp$school | at %in% temp$school)
-
-  team_plot_data$conference <- conf
-  team_plot_data$ht_score[10]<-30.37
-  team_plot_data$at_score[10]<-21.31
-  #team_plot_data$value_side[1]<-"Iowa"
-
-  team_plot_data %>%
-    transmute(Conference = conference, Home_Team = ht,
-              Home_Score = round(ht_score,2),
-              Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
-    arrange(desc(Conference)) %>%
-    gt() %>%
-    gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
-    gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
-    cols_align(
-      align = c('center'),
-      columns = everything()
-    ) %>%
-    tab_header(
-      title = md("**Scarlett Score Predictions**"),
-      subtitle = md("Harrison Eller")
-    ) %>%
-    fmt_number(
-      columns = c("Home_Score", "Away_Score")
-    ) %>%
-    tab_style(
-      style = list(
-        cell_text(weight = "bold")
-      ),
-      locations = cells_body(
-        columns = c("Home_Score", "Away_Score")
-      )
- )
-#
-#
-
-
-
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# # 
+# # 
+# # p5<-p5[-which(p5$ht == TRUE),]
+# # p5 = p5[!duplicated(p5$ht),]
+# # y<-p5
+# 
+# # team_plot_data = y
+# # team_plot_data$conference = 0
+# #
+#  for(i in 1:nrow(team_plot_data)){
+#     team_plot_data$conference[i] = cfbd_stats_season_team(year = 2023, team = team_plot_data$ht[i])$conference
+# 
+#  }
+# 
+# #
+# #
+# # 
+# #
+# # team_info <- cfbd_team_info()
+# # team_info <- team_info %>% filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
+# 
+# #
+# # # ############################ gt table ####################################
+# #
+# #
+# 
+# # 
+# #
+# 
+# #p5<- read.csv("C:\\Users\\Harrison Eller\\CFB_Analytics\\model_proj.csv")
+# 
+# 
+#   conf = "SEC"
+#   temp <- subset(team_info,conference == conf)
+# 
+#   team_plot_data <- p5 %>%
+#           filter(ht %in% temp$school | at %in% temp$school)
+# 
+#   team_plot_data$conference <- conf
+#   team_plot_data$ht_score[10]<-30.37
+#   team_plot_data$at_score[10]<-21.31
+#   #team_plot_data$value_side[1]<-"Iowa"
+# 
+#   team_plot_data %>%
+#     transmute(Conference = conference, Home_Team = ht,
+#               Home_Score = round(ht_score,2),
+#               Away_Score = round(at_score,2), Away_Team = at, Spread_Pick = value_side) %>%
+#     arrange(desc(Conference)) %>%
+#     gt() %>%
+#     gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
+#     gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
+#     cols_align(
+#       align = c('center'),
+#       columns = everything()
+#     ) %>%
+#     tab_header(
+#       title = md("**Scarlett Score Predictions**"),
+#       subtitle = md("Harrison Eller")
+#     ) %>%
+#     fmt_number(
+#       columns = c("Home_Score", "Away_Score")
+#     ) %>%
+#     tab_style(
+#       style = list(
+#         cell_text(weight = "bold")
+#       ),
+#       locations = cells_body(
+#         columns = c("Home_Score", "Away_Score")
+#       )
+#  )
+# #
+# #
+# 
+# 
+# 

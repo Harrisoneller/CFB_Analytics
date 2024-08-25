@@ -37,7 +37,7 @@ library(gt)
 
 ```{r, include=F}
 input_season = 2023
-week = 14
+week = 15
 include_scarlett = 'no'
 
 df = data.frame()
@@ -54,8 +54,8 @@ fbs_teams = subset(fbs_teams, classification == 'fbs')
 # ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # home_team_filter = ht = cfbd_game_info(2022, week = week, conference = conference)$home_team[1]
 # at = cfbd_game_info(2022, week = week, conference = conference)$away_team[1]
-ht=c('Texas')
-at=c("Oklahoma State")
+ht=c('Michigan')
+at=c("Washington")
 ```
 
 ```{r, include=F}
