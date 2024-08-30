@@ -23,9 +23,9 @@ library(gt)
 #setwd("C:/Users/harri/OneDrive/Desktop/LTB/CFB Analysis")
 #setwd("C:/Users/Harrison Eller/CFB_Analytics")
 
+bet <- cfbd_betting_lines(year=2024,week=1)
 
-
-conference_input = c('SEC','ACC')
+conference_input = c('SEC','ACC','Big 12','Big Ten')
 
 year <-2024
 week<-1
@@ -39,19 +39,22 @@ current_elo <- cfbd_ratings_elo(year = year-1) #cfbd_ratings_elo(year = year, we
 conferences<-c('SEC','ACC','B1G','PAC','B12')
 df = tibble()
 for (conf in conferences) {
+  temp_df_0<-cfbd_game_team_stats(year = year-2,conference = conf)
+  temp_df_0['season'] = year-2
   
   temp_df_1<-cfbd_game_team_stats(year = year-1,conference = conf)
   temp_df_1['season'] = year-1
   temp_df_2<-cfbd_game_team_stats(year = year,conference = conf)
   temp_df_2['season'] = year
-  temp_df<-rbind(temp_df_1,temp_df_2)
+  
+  temp_df<-rbind(temp_df_1,temp_df_2,temp_df_0)
   df<-rbind(df,temp_df)
 }
 
-
+temp0<-cfbd_stats_game_advanced(year=year-2) # use for individual teams as well 
 temp1<-cfbd_stats_game_advanced(year=year-1) # use for individual teams as well 
 temp2<-cfbd_stats_game_advanced(year=year)
-temp<-rbind(temp1,temp2)
+temp<-rbind(temp1,temp2, temp0)
 #temp2 <- df %>% distinct(game_id,.keep_all = TRUE)
 df2 <- df %>% inner_join(temp,by= c('school'='team', 'game_id'='game_id'))
 df2<-df2 %>% rename('opponent'='opponent.x')
@@ -65,8 +68,7 @@ df2['opponent_recruiting_rating'] = 0
 df2['opponent_qb_rating'] = 0
 
 
-
-for (y in (year-1):year){
+for (y in (year-2):year){
   recruiting <- cfbd_recruiting_position(start_year = year-3,end_year = year)
   try(
   for (j in 1:max(df2$week)){
@@ -137,11 +139,22 @@ data$weights <- 1#ifelse(as.numeric(substr(as.character(home$season),4,4))==2,as
 X = data[,!names(data) %in% c("points",'weights')]
 Y = data[,'points']
 r = seq(1,nrow(X), 1)
-s = sample(r, round(length(r)*.2) ,replace = F)
+s = sample(r, round(length(r)*.20) ,replace = F)
+# test_sample = sample(r, round(length(r)*.30) ,replace = F)
+# val_sample = sample(test_sample, round(length(test_sample)*.1) ,replace = F)
 train_x = data.matrix(X[-s,])
 train_y = data.matrix(Y[-s,])
 test_x = data.matrix(X[s,])
 test_y = data.matrix(Y[s,])
+# train_x = data.matrix(X[-c(test_sample,val_sample),])
+# train_y = data.matrix(Y[-c(test_sample,val_sample),])
+# test_x = data.matrix(X[c(test_sample),])
+# test_y = data.matrix(Y[c(test_sample),])
+# val_x = data.matrix(X[c(val_sample),])
+# val_y = data.matrix(Y[c(val_sample),])
+# train_weights = data.matrix(data$weights[-c(test_sample,val_sample)])
+# test_weights = data.matrix(data$weights[c(test_sample)])
+# val_weights = data.matrix(data$weights[c(val_sample)])
 train_weights = data.matrix(data$weights[-s])
 test_weights = data.matrix(data$weights[s])
 
@@ -155,7 +168,7 @@ xgb_grid_1 = expand.grid(
 # pack the training control parameters
 xgb_trcontrol_1 = trainControl(
   method = "cv",
-  number = 3,
+  number = 8,
   verboseIter = TRUE,
   returnData = FALSE,
   returnResamp = "all",                                                        # save losses across all models
@@ -175,23 +188,22 @@ watchlist = list(train=xgb_train, test=xgb_test)
 
 params <- list(booster = "gblinear",
                objective = "reg:absoluteerror")
+params <- list(booster = "gbtree",
+               objective = "reg:absoluteerror")
 
 xgb_base <- 0
 xgb_base <- xgb.train(params = params,
                       data = xgb_train,
-                      nrounds =500,
+                      nrounds =1000,
                       print_every_n = 100,
-                      max_depth = 6,
+                      max_depth = 8,
                       eval_metric = "mae",
-                      early_stopping_rounds = 20,
+                      early_stopping_rounds = 150,
                       trControl = xgb_trcontrol_1,
                       tuneGrid = xgb_grid_1,
                       watchlist = watchlist)
 #model = xgb.train(data = xgb_train, max.depth = 3, nrounds = 70)
 #final = xgboost(data = xgb_train, max.depth = 3, nrounds = 60)
-
-
-
 
 
 
@@ -336,4 +348,70 @@ return(projections)
 
 
 
-get_XGB_projections(conference_input = c('SEC','ACC'), week=1)
+y<-get_XGB_projections(conference_input = conference_input, week=1)
+team_info <- cfbd_team_info()
+team_info <- team_info %>% filter(conference %in% c("SEC","Pac-12","Big Ten","Big 12","ACC"))
+
+y['value_pick']=""
+y['vegas_spread']=0
+
+for (game in 1:nrow(y)){
+  
+  temp_bet = bet[which( ( bet$home_team == y$home[game]) &  (bet$away_team == y$away[game]) & (bet$provider == 'DraftKings') ),]
+  if (length(temp_bet) > 0 ){
+    if( (as.numeric(temp_bet$spread) > 0 ) & (as.numeric(temp_bet$spread) < y$home_spread[game] ) ){y$value_pick[game] <- y$away[game]}
+    if( (as.numeric(temp_bet$spread) > 0 ) & (as.numeric(temp_bet$spread) > y$home_spread[game] ) ){y$value_pick[game] <- y$home[game]}
+    if( (as.numeric(temp_bet$spread) < 0 ) & (as.numeric(temp_bet$spread) > y$home_spread[game] ) ){y$value_pick[game] <- y$home[game]}
+    if( (as.numeric(temp_bet$spread) < 0 ) & (as.numeric(temp_bet$spread) < y$home_spread[game] ) ){y$value_pick[game] <- y$away[game]}
+    y$vegas_spread[game] = as.numeric(temp_bet$spread[1])
+  }else{
+    temp_bet = bet[which( ( bet$home_team == y$home[game]) &  (bet$away_team == y$away[game]) & (bet$provider == 'ESPN Bet') ),]
+    if( (as.numeric(temp_bet$spread) > 0 ) & (as.numeric(temp_bet$spread) < y$home_spread[game] ) ){y$value_pick[game] <- y$away[game]}
+    if( (as.numeric(temp_bet$spread) > 0 ) & (as.numeric(temp_bet$spread) > y$home_spread[game] ) ){y$value_pick[game] <- y$home[game]}
+    if( (as.numeric(temp_bet$spread) < 0 ) & (as.numeric(temp_bet$spread) > y$home_spread[game] ) ){y$value_pick[game] <- y$home[game]}
+    if( (as.numeric(temp_bet$spread) < 0 ) & (as.numeric(temp_bet$spread) < y$home_spread[game] ) ){y$value_pick[game] <- y$away[game]}
+    y$vegas_spread[game] = as.numeric(temp_bet$spread[1])
+  }
+}
+
+
+  conf = "Big 12"
+  temp <- subset(team_info,conference == conf)
+
+  team_plot_data <- y %>%
+          filter(home %in% temp$school | away %in% temp$school)
+
+  team_plot_data$conference <- conf
+  team_plot_data$home_score[7]<-36.6
+  team_plot_data$away_score[3]<-28.24
+  #team_plot_data$value_pick[1]<-"Oklahoma"
+  #team_plot_data<-team_plot_data[-c(1,2,3),]
+ 
+  
+  team_plot_data %>%
+    transmute(Conference = conference, Home_Team = home,
+              Home_Score = round(home_score,2),
+              Away_Score = round(away_score,2), Away_Team = away, Spread_Pick = value_pick) %>%
+    arrange(desc(Conference)) %>%
+    gt() %>%
+    gt_fmt_cfb_logo(columns = c("Conference", "Spread_Pick")) %>%
+    gt_fmt_cfb_wordmark(columns = c("Home_Team","Away_Team")) %>%
+    cols_align(
+      align = c('center'),
+      columns = everything()
+    ) %>%
+    tab_header(
+      title = md("**Scarlett Score Predictions**"),
+      subtitle = md("Harrison Eller")
+    ) %>%
+    fmt_number(
+      columns = c("Home_Score", "Away_Score")
+    ) %>%
+    tab_style(
+      style = list(
+        cell_text(weight = "bold")
+      ),
+      locations = cells_body(
+        columns = c("Home_Score", "Away_Score")
+      )
+ )
